@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{admin/admin-layout-v2 :: layout(~{::content})}">
+    <div th:fragment="content">
+
+        <!-- En-tête -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-image text-green-600 mr-3"></i>Optimisation des Images
+                    </h1>
+                    <p class="text-gray-600">Réduisez automatiquement la taille de vos images pour améliorer les performances</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="/admin/optimize-images/test" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        <i class="fas fa-vial mr-2"></i>Tester sur 1 image
+                    </a>
+                    <a href="/admin" class="text-gray-600 hover:text-gray-800 transition">
+                        <i class="fas fa-arrow-left mr-2"></i>Retour au dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-compress-arrows-alt text-blue-600 text-2xl mr-3"></i>
+                    <h3 class="font-bold text-blue-900">Compression</h3>
+                </div>
+                <p class="text-sm text-blue-700">Réduit les images à 1920x1920px max avec 88% de qualité</p>
+            </div>
+
+            <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-lg">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-chart-line text-green-600 text-2xl mr-3"></i>
+                    <h3 class="font-bold text-green-900">Performance</h3>
+                </div>
+                <p class="text-sm text-green-700">Améliore le score Google PageSpeed et le temps de chargement</p>
+            </div>
+
+            <div class="bg-purple-50 border-l-4 border-purple-500 p-6 rounded-lg">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-memory text-purple-600 text-2xl mr-3"></i>
+                    <h3 class="font-bold text-purple-900">Économie RAM</h3>
+                </div>
+                <p class="text-sm text-purple-700">Traitement séquentiel, max 256MB de mémoire utilisée</p>
+            </div>
+        </div>
+
+        <!-- Zone de contrôle -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div class="text-center">
+                <div class="mb-6">
+                    <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-green-400 to-teal-500 rounded-full mb-4">
+                        <i class="fas fa-rocket text-white text-4xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Prêt à optimiser vos images ?</h2>
+                    <p class="text-gray-600">Cette opération peut prendre quelques minutes selon le nombre d'images</p>
+                </div>
+
+                <button onclick="startOptimization()"
+                        id="optimizeBtn"
+                        class="bg-gradient-to-r from-green-500 to-teal-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-teal-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    <i class="fas fa-play mr-3"></i>Lancer l'optimisation
+                </button>
+
+                <div id="warningBox" class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 hidden">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 text-xl mr-3 mt-1"></i>
+                        <div class="text-left">
+                            <p class="text-yellow-800 font-semibold mb-1">Attention</p>
+                            <p class="text-yellow-700 text-sm">
+                                • Les images originales seront remplacées par les versions optimisées<br>
+                                • Les petites images (&lt; 200KB) ne seront pas modifiées<br>
+                                • Le remplacement se fait uniquement si le gain est &gt; 10%
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone de progression -->
+        <div id="progressBox" class="bg-white rounded-2xl shadow-xl p-8 hidden">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-4">
+                    <i class="fas fa-spinner fa-spin text-blue-600 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Optimisation en cours...</h3>
+                <p class="text-gray-600">Traitement des images, veuillez patienter</p>
+            </div>
+
+            <div class="bg-gray-100 rounded-full h-3 overflow-hidden mb-4">
+                <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-teal-500 h-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <div id="progressText" class="text-center text-sm text-gray-600">
+                Initialisation...
+            </div>
+        </div>
+
+        <!-- Zone de résultats -->
+        <div id="resultBox" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <div class="text-center mb-6">
+                    <div id="resultIcon" class="inline-flex items-center justify-center w-20 h-20 rounded-full mb-4">
+                        <i class="text-4xl"></i>
+                    </div>
+                    <h3 id="resultTitle" class="text-2xl font-bold mb-2"></h3>
+                    <p id="resultMessage" class="text-gray-600"></p>
+                </div>
+
+                <div id="resultStats" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Les statistiques seront ajoutées ici par JavaScript -->
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="location.reload()"
+                            class="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition">
+                        <i class="fas fa-redo mr-2"></i>Nouvelle optimisation
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function startOptimization() {
+    const btn = document.getElementById('optimizeBtn');
+    const warningBox = document.getElementById('warningBox');
+    const progressBox = document.getElementById('progressBox');
+    const resultBox = document.getElementById('resultBox');
+
+    // Masquer le bouton et afficher la progression
+    btn.classList.add('hidden');
+    warningBox.classList.add('hidden');
+    progressBox.classList.remove('hidden');
+    resultBox.classList.add('hidden');
+
+    // Animation de la barre de progression (simulation)
+    let progress = 0;
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = progress + '%';
+        progressText.textContent = 'Traitement en cours... ' + Math.round(progress) + '%';
+    }, 500);
+
+    // Récupérer le token CSRF depuis les meta tags
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+    // Préparer les headers avec le token CSRF
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    if (csrfToken && csrfHeader) {
+        headers[csrfHeader] = csrfToken;
+    }
+
+    // Appel AJAX vers le serveur avec timeout étendu
+    fetch('/admin/optimize-images/run', {
+        method: 'POST',
+        headers: headers,
+        signal: AbortSignal.timeout(600000) // Timeout de 10 minutes
+    })
+    .then(response => {
+        // Vérifier si la réponse est OK avant de parser le JSON
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        // Vérifier si la réponse contient du JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('La réponse du serveur n\'est pas au format JSON');
+        }
+
+        return response.text().then(text => {
+            // Vérifier que le texte n'est pas vide
+            if (!text || text.trim() === '') {
+                throw new Error('Réponse vide du serveur');
+            }
+
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('Erreur de parsing JSON. Réponse reçue:', text);
+                throw new Error('Format de réponse invalide du serveur');
+            }
+        });
+    })
+    .then(data => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+
+        setTimeout(() => {
+            showResults(data);
+        }, 500);
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        console.error('Erreur complète:', error);
+
+        let errorMessage = error.message;
+        if (error.name === 'AbortError' || error.message.includes('timeout')) {
+            errorMessage = 'L\'optimisation prend plus de temps que prévu. Le processus continue en arrière-plan. Veuillez rafraîchir la page dans quelques minutes.';
+        }
+
+        showError(errorMessage);
+    });
+}
+
+function showResults(data) {
+    const progressBox = document.getElementById('progressBox');
+    const resultBox = document.getElementById('resultBox');
+    const resultIcon = document.getElementById('resultIcon');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMessage = document.getElementById('resultMessage');
+    const resultStats = document.getElementById('resultStats');
+
+    progressBox.classList.add('hidden');
+    resultBox.classList.remove('hidden');
+
+    if (data.success) {
+        // Succès
+        resultIcon.className = 'inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4';
+        resultIcon.querySelector('i').className = 'fas fa-check-circle text-green-600 text-4xl';
+        resultTitle.textContent = '✅ Optimisation terminée !';
+        resultTitle.className = 'text-2xl font-bold text-green-800 mb-2';
+        resultMessage.textContent = data.message;
+
+        // Statistiques
+        const totalSavedMB = (data.totalSavedKB / 1024).toFixed(2);
+        const avgSavedKB = data.optimized > 0 ? Math.round(data.totalSavedKB / data.optimized) : 0;
+
+        resultStats.innerHTML = `
+            <div class="bg-blue-50 p-4 rounded-lg text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-1">${data.totalProcessed}</div>
+                <div class="text-sm text-blue-800">Images traitées</div>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg text-center">
+                <div class="text-3xl font-bold text-green-600 mb-1">${data.optimized}</div>
+                <div class="text-sm text-green-800">Images optimisées</div>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg text-center">
+                <div class="text-3xl font-bold text-purple-600 mb-1">${totalSavedMB} MB</div>
+                <div class="text-sm text-purple-800">Espace économisé</div>
+            </div>
+            <div class="bg-orange-50 p-4 rounded-lg text-center">
+                <div class="text-3xl font-bold text-orange-600 mb-1">${avgSavedKB} KB</div>
+                <div class="text-sm text-orange-800">Économie moyenne</div>
+            </div>
+        `;
+
+        if (data.skipped > 0) {
+            resultStats.innerHTML += `
+                <div class="bg-gray-50 p-4 rounded-lg text-center md:col-span-2">
+                    <div class="text-2xl font-bold text-gray-600 mb-1">${data.skipped} images ignorées</div>
+                    <div class="text-xs text-gray-600">(déjà optimisées ou trop petites)</div>
+                </div>
+            `;
+        }
+
+        if (data.errors > 0) {
+            resultStats.innerHTML += `
+                <div class="bg-red-50 p-4 rounded-lg text-center md:col-span-2">
+                    <div class="text-2xl font-bold text-red-600 mb-1">${data.errors} erreurs</div>
+                    <div class="text-xs text-red-600">Certaines images n'ont pas pu être optimisées</div>
+                </div>
+            `;
+        }
+    } else {
+        // Erreur
+        resultIcon.className = 'inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-4';
+        resultIcon.querySelector('i').className = 'fas fa-times-circle text-red-600 text-4xl';
+        resultTitle.textContent = '❌ Erreur';
+        resultTitle.className = 'text-2xl font-bold text-red-800 mb-2';
+        resultMessage.textContent = data.message;
+
+        resultStats.innerHTML = `
+            <div class="bg-red-50 p-6 rounded-lg text-center md:col-span-4">
+                <p class="text-red-800">Une erreur s'est produite lors de l'optimisation. Veuillez réessayer ou contacter l'administrateur.</p>
+            </div>
+        `;
+    }
+}
+
+function showError(message) {
+    showResults({
+        success: false,
+        message: message,
+        totalProcessed: 0,
+        optimized: 0,
+        skipped: 0,
+        errors: 0,
+        totalSavedKB: 0
+    });
+}
+
+// Afficher l'avertissement au chargement
+window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        document.getElementById('warningBox').classList.remove('hidden');
+    }, 500);
+});
+</script>
+
+</body>
+</html>

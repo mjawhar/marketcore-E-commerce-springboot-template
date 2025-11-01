@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl font-bold text-gray-800 mb-6">À propos de <span th:text="${siteName}">Marketplace</span></h1>
+
+            <!-- Section hero -->
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg p-8 mb-8">
+                <h2 class="text-3xl font-bold mb-4">Votre marketplace de confiance en <span th:text="${siteCountry}">France</span></h2>
+                <p class="text-xl opacity-90"><span th:text="${siteName}">Marketplace</span> connecte vendeurs et acheteurs dans un environnement sécurisé et convivial.</p>
+
+                <!-- Notre mission -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-indigo-600">Notre Mission</h3>
+                    <p class="text-gray-600 mb-4">
+                        Faciliter le commerce en ligne en <span th:text="${siteCountry}">France</span> en offrant une plateforme simple, sécurisée et efficace pour tous.
+                    </p>
+                    <ul class="text-gray-600 space-y-2">
+                        <li>• Soutenir les vendeurs locaux</li>
+                        <li>• Offrir des prix compétitifs</li>
+                        <li>• Garantir une expérience client exceptionnelle</li>
+                        <li>• Promouvoir le commerce équitable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Nos valeurs -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-semibold mb-6 text-indigo-600">Nos Valeurs</h3>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-semibold text-lg mb-2">Confiance</h4>
+                        <p class="text-gray-600">Nous construisons des relations durables basées sur la transparence et l'honnêteté.</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-semibold text-lg mb-2">Innovation</h4>
+                        <p class="text-gray-600">Nous adoptons les dernières technologies pour améliorer votre expérience d'achat.</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="font-semibold text-lg mb-2">Proximité</h4>
+                        <p class="text-gray-600">Nous privilégions les relations humaines et restons à l'écoute de nos utilisateurs.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-2xl font-semibold mb-6 text-indigo-600">marketcore en chiffres</h3>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    <div>
+                        <div class="text-3xl font-bold text-indigo-600 mb-2">1000+</div>
+                        <div class="text-gray-600">Produits disponibles</div>
+                    </div>
+
+                    <div>
+                        <div class="text-3xl font-bold text-indigo-600 mb-2">500+</div>
+                        <div class="text-gray-600">Vendeurs actifs</div>
+                    </div>
+
+                    <div>
+                        <div class="text-3xl font-bold text-indigo-600 mb-2">5000+</div>
+                        <div class="text-gray-600">Clients satisfaits</div>
+                    </div>
+
+                    <div>
+                        <div class="text-3xl font-bold text-indigo-600 mb-2">24/7</div>
+                        <div class="text-gray-600">Support client</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pourquoi nous choisir -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-2xl font-semibold mb-6 text-indigo-600">Pourquoi choisir marketcore ?</h3>
+
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold mb-1">Produits de qualité</h4>
+                            <p class="text-gray-600">Tous nos vendeurs sont vérifiés et nos produits sont contrôlés pour garantir leur qualité.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold mb-1">Livraison rapide</h4>
+                            <p class="text-gray-600">Livraison dans tout le pays en 2-5 jours ouvrables avec suivi de commande.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold mb-1">Paiement sécurisé</h4>
+                            <p class="text-gray-600">Transactions protégées avec plusieurs options de paiement disponibles.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold mb-1">Support client réactif</h4>
+                            <p class="text-gray-600">Notre équipe est disponible pour vous accompagner dans vos achats et résoudre vos problèmes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,37 @@
+# Maven build directory
+target/
+target/*
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+/target/
+
+# Dépendances Node.js
+node_modules/
+package-lock.json
+
+# Configuration files with sensitive data
+application-dev.properties
+

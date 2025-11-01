@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:fragment="layout(content)" th:attr="lang=${#locale}">
+<head>
+
+
+
+    <title th:text="${pageTitle}">Marketplace</title>
+
+    <!-- Préchargement des ressources critiques pour améliorer les performances -->
+    <link rel="preload" href="/css/output.css" as="style">
+
+    <!-- DNS Prefetch pour les ressources externes -->
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <!-- Tailwind CSS - Critique, chargé immédiatement -->
+    <link rel="stylesheet" href="/css/output.css">
+
+    <!-- Font Awesome - Chargé de manière asynchrone pour ne pas bloquer le rendu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
+    <!-- Variable pour stocker le nombre d'articles dans le panier -->
+    <script th:inline="javascript">
+        /* La variable cartItemCount stockera le nombre d'articles dans le panier */
+        var cartItemCount = /*[[${cartItemCount}]]*/ 0;
+    </script>
+
+    <!-- Script de carrousel - Version simplifiée sans réinjection de styles -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const carousel = document.getElementById('categories-carousel');
+        if (carousel) {
+            console.log('Carousel initialisé avec succès');
+        }
+    });
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+
+<header class="bg-white shadow-sm sticky top-0 z-40 transition duration-300">
+    <div class="container mx-auto px-3 py-1">
+        <div class="flex justify-between items-center w-full">
+            <div class="flex items-center">
+                <a href="/" class="relative overflow-hidden flex items-center px-1 py-0.5 rounded-lg transition-all duration-300 hover:scale-105">
+                    <i class="fas fa-shopping-bag inline-block mr-1.5 text-lg text-blue-500 animate-bounce transition-colors duration-300 hover:text-pink-500"></i>
+                    <div class="flex flex-col">
+                        <span class="font-extrabold text-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse hover:animate-none" th:text="${siteName}">Marketplace</span>
+                        <span class="hidden md:block text-xs text-gray-500 font-medium -mt-1 tracking-wider uppercase" th:text="#{site.name}">Marketplace</span>
+                    </div>
+                </a>
+                <!-- Menu hamburger pour mobile -->
+                <button id="mobile-menu-button" class="ml-2 md:hidden text-gray-700 focus:outline-none" aria-label="Ouvrir le menu de navigation">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Sélecteur de langue corrigé (supprime #httpServletRequest) -->
+            <!-- Sélecteur de langue supprimé -->
+
+
+        </div>
+    </div>
+</header>
+
+<!-- Script d'optimisation des images -->
+<script>
+// Fonction pour optimiser le chargement des images
+function optimizeImageLoading() {
+    // Sélectionner toutes les images avec l'attribut loading="lazy"
+    const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+    
+    // Si IntersectionObserver est supporté, l'utiliser pour le lazy loading
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    // Charger l'image si elle est dans le viewport
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                    }
+                    // Arrêter d'observer cette image
+                    observer.unobserve(img);
+                }
+            });
+        });
+        
+        // Observer chaque image
+        lazyImages.forEach(img => {
+            // Si l'image a un attribut data-src, l'observer
+            if (img.dataset.src) {
+                imageObserver.observe(img);
+            }
+        });
+    } else {
+        // Fallback pour les navigateurs qui ne supportent pas IntersectionObserver
+        // Utiliser l'attribut loading="lazy" natif qui est déjà présent
+    }
+    
+    // Ajouter des dimensions aux images qui n'en ont pas
+    document.querySelectorAll('img:not([width]):not([height])').forEach(img => {
+        img.addEventListener('load', function() {
+            if (!this.hasAttribute('width') && !this.hasAttribute('height')) {
+                this.setAttribute('width', this.naturalWidth);
+                this.setAttribute('height', this.naturalHeight);
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Appeler la fonction d'optimisation des images
+    optimizeImageLoading();
+  // Gestion des menus déroulants pour desktop
+  const categoryContainers = document.querySelectorAll('.group');
+  let activeSubmenu = null;
+  let hideTimeout = null;
+  
+  categoryContainers.forEach(container => {
+    const categoryLink = container.querySelector('.category-link');
+    const submenu = container.querySelector('.submenu');
+    
+    if (!submenu) return;
+
+    // Show submenu when hovering over category
+    container.addEventListener('mouseenter', () => {
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
+      }
+      
+      if (activeSubmenu && activeSubmenu !== submenu) {
+        activeSubmenu.classList.add('invisible', 'opacity-0');
+      }
+      
+      submenu.classList.remove('invisible', 'opacity-0');
+      activeSubmenu = submenu;
+    });
+    
+    // Add delay before hiding submenu
+    container.addEventListener('mouseleave', () => {
+      hideTimeout = setTimeout(() => {
+        submenu.classList.add('invisible', 'opacity-0');
+        if (activeSubmenu === submenu) {
+          activeSubmenu = null;
+        }
+      }, 200); // 200ms delay before hiding
+    });
+    
+    // Keep submenu visible when hovering over it
+    if (submenu) {
+      submenu.addEventListener('mouseenter', () => {
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+          hideTimeout = null;
+        }
+      });
+    }
+  });
+
+  // Menu mobile
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const closeMobileMenu = document.getElementById('close-mobile-menu');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+  }
+
+  if (closeMobileMenu && mobileMenu) {
+    closeMobileMenu.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      document.body.style.overflow = '';
+    });
+  }
+
+  // Gestionnaire des sous-menus dans la version mobile
+  const mobileToggles = document.querySelectorAll('.mobile-toggle');
+
+  mobileToggles.forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      const parent = toggle.closest('.mobile-category');
+      const submenu = parent.querySelector('.mobile-submenu');
+      const icon = toggle.querySelector('i');
+
+      submenu.classList.toggle('hidden');
+
+      if (submenu.classList.contains('hidden')) {
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+      } else {
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+      }
+    });
+  });
+
+  // Afficher le nombre réel d'articles dans le panier
+  const cartCount = document.getElementById('cart-count');
+  if (cartCount && typeof cartItemCount !== 'undefined') {
+    cartCount.textContent = cartItemCount;
+    // Masquer le badge si le panier est vide
+    if (cartItemCount <= 0) {
+      cartCount.style.display = 'none';
+    } else {
+      cartCount.style.display = 'flex';
+    }
+  }
+});
+</script>
+
+<!-- Popup d'ajout au panier -->
+<div id="cart-popup" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50" id="cart-popup-overlay"></div>
+    <div class="bg-white rounded-lg shadow-xl p-6 relative z-10 w-11/12 max-w-md transform transition-all">
+        <button class="absolute top-3 right-3 text-gray-400 hover:text-gray-600" id="close-cart-popup">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="flex items-center mb-4">
+            <div class="bg-green-100 text-green-700 p-2 rounded-full mr-3">
+                <i class="fas fa-check text-xl"></i>
+            </div>
+            <h3 class="text-lg font-medium" th:text="#{cart.popup.added}">Produit ajouté au panier</h3>
+        </div>
+
+        <div class="flex items-center space-x-4 mb-6">
+            <div class="w-20 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                <img id="cart-popup-image" src="#" alt="Image du produit" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1">
+                <h4 id="cart-popup-product-name" class="font-medium text-gray-800"></h4>
+                <div class="flex items-center justify-between mt-1">
+                    <p class="text-gray-600">
+                        <span th:text="#{cart.popup.qty}">Quantité</span>:
+                        <span id="cart-popup-quantity" class="font-medium"></span>
+                    </p>
+                    <p class="text-indigo-600 font-medium" id="cart-popup-price"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex space-x-3">
+            <a href="/cart" class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg text-center hover:bg-indigo-700 transition" th:text="#{cart.popup.go}">Aller au panier</a>
+            <button id="cart-popup-continue" class="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition" th:text="#{cart.popup.continue}">Continuer mes achats</button>
+        </div>
+    </div>
+</div>
+
+<main class="container mx-auto px-4 py-8 flex-1">
+    <div th:replace="${content}"></div>
+</main>
+
+<footer class="bg-white border-t">
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm text-gray-500" th:text="'© 2025 ' + ${siteName}">© 2025 Marketplace</p>
+            </div>
+            <nav class="flex space-x-6">
+                <a href="/contact" class="text-sm text-gray-600 hover:text-gray-900 transition-colors" th:text="#{footer.contact}">Contact</a>
+                <a href="/about" class="text-sm text-gray-600 hover:text-gray-900 transition-colors" th:text="#{footer.about}">À propos</a>
+                <a href="/conditions-generales" class="text-sm text-gray-600 hover:text-gray-900 transition-colors" th:text="#{footer.terms}">Conditions générales</a>
+            </nav>
+        </div>
+    </div>
+</footer>
+
+<!-- Structured Data for Organization and Website -->
+<script type="application/ld+json" th:inline="javascript">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": /*[[${siteName}]]*/ "Marketplace",
+  "url": /*[[${baseUrl}]]*/ "https://www.marketcore.com",
+  "logo": /*[[${baseUrl}]]*/ "https://www.marketcore.com" + "/img/logo.png",
+  "description": /*[[${siteDescription}]]*/ "Marketplace ",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "FR",
+    "addressLocality": "PARIS"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": /*[[${sitePhone}]]*/ "+33 58145071",
+    "contactType": "customer service",
+    "availableLanguage": ["fr", "ar"]
+  },
+  "sameAs": [
+    "https://www.facebook.com/marketcore",
+    "https://www.instagram.com/marketcore",
+    "https://twitter.com/marketcore"
+  ]
+}
+</script>
+
+<script type="application/ld+json" th:inline="javascript">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": /*[[${siteName}]]*/ "Marketplace",
+  "url": /*[[${baseUrl}]]*/ "https://www.marketcore.com",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": /*[[${baseUrl}]]*/ "https://www.marketcore.com" + "/product/list?search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<!-- Script pour gérer l'ajout au panier avec AJAX -->
+<!-- En production: charge cart.min.js, en dev: charge cart.js -->
+<script th:if="${@environment.getActiveProfiles().length > 0 and @environment.getActiveProfiles()[0] == 'prod'}" th:src="@{/js/cart.min.js}"></script>
+<script th:unless="${@environment.getActiveProfiles().length > 0 and @environment.getActiveProfiles()[0] == 'prod'}" th:src="@{/js/cart.js}"></script>
+
+<!-- Script pour rendre les cartes produits cliquables -->
+<!-- En production: charge clickable-cards.min.js, en dev: charge clickable-cards.js -->
+<script th:if="${@environment.getActiveProfiles().length > 0 and @environment.getActiveProfiles()[0] == 'prod'}" th:src="@{/js/clickable-cards.min.js}"></script>
+<script th:unless="${@environment.getActiveProfiles().length > 0 and @environment.getActiveProfiles()[0] == 'prod'}" th:src="@{/js/clickable-cards.js}"></script>
+
+</body>
+</html>

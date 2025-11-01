@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold mb-2" th:text="#{cart.title}">Mon panier</h1>
+    <p class="text-gray-600" th:text="#{cart.subtitle}">Vérifiez vos articles et complétez votre commande</p>
+</div>
+
+
+            <div class="mt-6">
+                <a href="/checkout" class="w-full block text-center px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium" th:text="#{cart.checkout.button}">
+                    Valider ma commande
+                </a>
+
+                <div class="mt-4 text-center text-sm text-gray-500">
+                    <p class="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <span th:text="#{cart.secure.payment}">Paiement sécurisé</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<!-- Script AJAX pour la mise à jour des quantités -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestionnaire de clics pour les boutons de quantité
+    document.addEventListener('click', function(e) {
+        // Trouver le bouton (directement ou parent du SVG cliqué)
+        let button = null;
+        if (e.target.matches('button[name="action"]')) {
+            button = e.target;
+        } else if (e.target.closest('button[name="action"]')) {
+            button = e.target.closest('button[name="action"]');
+        }
+
+        if (button) {
+            e.preventDefault();
+
+            const form = button.closest('.quantity-update-form');
+            if (!form) return;
+
+            const action = button.value;
+            const itemId = form.getAttribute('data-item-id');
+
+            // Récupérer les tokens CSRF
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+
+            if (!csrfToken || !csrfHeader) {
+                return;
+            }
+
+            // Requête AJAX
+            fetch(`/cart/update-ajax/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json',
+                    [csrfHeader.getAttribute('content')]: csrfToken.getAttribute('content')
+                },
+                body: new URLSearchParams({
+                    action: action
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erreur HTTP: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (data.itemRemoved) {
+                        // Supprimer la ligne
+                        const row = form.closest('tr');
+                        if (row) row.remove();
+                    } else {
+                        // Mettre à jour la quantité
+                        const quantitySpan = form.querySelector('.quantity-display');
+                        if (quantitySpan) quantitySpan.textContent = data.newQuantity;
+
+                        // Mettre à jour le prix de la ligne
+                        const priceCell = form.closest('tr').querySelector('.item-total');
+                        if (priceCell && data.itemTotal !== undefined) {
+                            priceCell.textContent = formatPrice(data.itemTotal);
+                        }
+                    }
+
+                    // Mettre à jour le total du panier
+                    updateCartTotal(data.cartTotal);
+                    updateCartCount();
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la mise à jour de quantité:', error);
+            });
+        }
+    });
+
+    // Fonction pour formater le prix
+    function formatPrice(price) {
+        return new Intl.NumberFormat('fr-FR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(price) + ' DT';
+    }
+
+    // Fonction pour mettre à jour le total du panier
+    function updateCartTotal(newTotal) {
+        const subtotalElements = document.querySelectorAll('.cart-subtotal');
+        const totalElements = document.querySelectorAll('.cart-total');
+        const deliveryCost = 4.99;
+
+        subtotalElements.forEach(element => {
+            element.textContent = formatPrice(newTotal);
+        });
+
+        totalElements.forEach(element => {
+            element.textContent = formatPrice(newTotal + deliveryCost);
+        });
+    }
+
+    // Fonction pour mettre à jour le compteur du panier
+    function updateCartCount() {
+        fetch('/cart/count', {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                const count = parseInt(data.count);
+                cartCount.textContent = count;
+                cartCount.style.display = count <= 0 ? 'none' : 'flex';
+            }
+        })
+        .catch(error => console.error('Erreur compteur panier:', error));
+    }
+});
+</script>
+
+</body>
+</html>

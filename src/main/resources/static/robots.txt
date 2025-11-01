@@ -1,0 +1,31 @@
+User-agent: *
+# Allow product and category pages first
+Allow: /product/
+Allow: /category/
+Allow: /categorie/
+Allow: /produit/
+Allow: /
+
+# Disallow sensitive areas
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /cart/
+Disallow: /order/
+Disallow: /checkout/
+Disallow: /login
+Disallow: /register
+Disallow: /logout
+Disallow: /error/
+Disallow: /*?*
+
+# Sitemap location (à adapter selon votre domaine)
+Sitemap: https://www.marketcore.com/sitemap.xml
+
+# Crawl delay for heavy bots
+User-agent: AhrefsBot
+
+
+User-agent: SemrushBot
+
+
+User-agent: MJ12bot

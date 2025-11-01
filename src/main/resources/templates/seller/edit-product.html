@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+
+        <h1 class="text-2xl font-bold mb-6">Modifier produit</h1>
+
+        <div class="bg-white p-4 rounded-xl shadow mb-6">
+            <form th:action="@{'/seller/products/edit/' + ${product.id}}" method="post" enctype="multipart/form-data" class="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <label class="block text-sm mb-1">Titre</label>
+                    <input type="text" name="title" th:value="${product.title}" class="border px-3 py-2 w-full rounded" required>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Marque</label>
+                    <input type="text" name="brand" th:value="${product.brand}" class="border px-3 py-2 w-full rounded" placeholder="Marque du produit">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Prix</label>
+                    <input type="text" name="priceStr" th:value="${product.price}" class="border px-3 py-2 w-full rounded" required>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Prix réduit (optionnel)</label>
+                    <input type="text" name="discountedPriceStr" th:value="${product.discountedPrice}" class="border px-3 py-2 w-full rounded" placeholder="Prix après réduction">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Stock</label>
+                    <select name="stock" class="border px-3 py-2 w-full rounded" required>
+                        <option value="" disabled>-- Sélectionner le statut du stock --</option>
+                        <option value="instock" th:selected="${product.stock != null and product.stock.name() == 'IN_STOCK'}">En stock</option>
+                        <option value="outofstock" th:selected="${product.stock != null and product.stock.name() == 'OUT_OF_STOCK'}">Rupture de stock</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Type de produit</label>
+                    <select name="productType" class="border px-3 py-2 w-full rounded" required>
+                        <option value="" disabled>-- Sélectionner le type de produit --</option>
+                        <option value="NEW" th:selected="${product.productType != null and product.productType.name() == 'NEW'}">Neuf</option>
+                        <option value="USED" th:selected="${product.productType != null and product.productType.name() == 'USED'}">D'occasion</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm mb-1">Description courte</label>
+                    <input type="text" name="shortDescription" th:value="${product.shortDescription}" class="border px-3 py-2 w-full rounded" maxlength="255" required placeholder="Description courte du produit">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm mb-1">Description</label>
+                    <textarea name="description" class="border px-3 py-2 w-full rounded" rows="4" th:text="${product.description}"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Catégorie</label>
+                    <select name="categoryId" class="border px-3 py-2 w-full rounded" required>
+                        <option value="" disabled>-- Sélectionner une catégorie --</option>
+                        <option th:each="c : ${categories}"
+                                th:value="${c.id}"
+                                th:text="${c.name}"
+                                th:selected="${product.category != null and product.category.id == c.id}"></option>
+                    </select>
+                </div>
+
+                <!-- Section des images actuelles -->
+                <div class="md:col-span-2">
+                    <h3 class="text-md font-semibold mb-2">Images actuelles</h3>
+                    <div class="flex gap-4 mb-4">
+                        <!-- Image 1 - Locale ou URL externe -->
+                        <div th:if="${product.image1Path != null}" class="text-center">
+                            <img th:src="@{'/images/' + ${product.id} + '/1'}" alt="Image 1" class="w-20 h-20 object-cover rounded border">
+                            <p class="text-xs text-gray-600 mt-1">Image 1 (Locale)</p>
+                        </div>
+                        <div th:if="${product.image1Path == null && product.image1Url != null}" class="text-center">
+                            <img th:src="${product.image1Url}" alt="Image 1" class="w-20 h-20 object-cover rounded border">
+                            <p class="text-xs text-gray-600 mt-1">Image 1 (URL)</p>
+                        </div>
+
+                        <!-- Image 2 - Locale ou URL externe -->
+                        <div th:if="${product.image2Path != null}" class="text-center">
+                            <img th:src="@{'/images/' + ${product.id} + '/2'}" alt="Image 2" class="w-20 h-20 object-cover rounded border">
+                            <p class="text-xs text-gray-600 mt-1">Image 2 (Locale)</p>
+                        </div>
+                        <div th:if="${product.image2Path == null && product.image2Url != null}" class="text-center">
+                            <img th:src="${product.image2Url}" alt="Image 2" class="w-20 h-20 object-cover rounded border">
+                            <p class="text-xs text-gray-600 mt-1">Image 2 (URL)</p>
+                        </div>
+
+                        <!-- Image 3 - Locale ou URL externe -->
+                        <div th:if="${product.image3Path != null}" class="text-center">
+                            <img th:src="@{'/images/' + ${product.id} + '/3'}" alt="Image 3" class="w-20 h-20 object-cover rounded border">
+                            <p class="text-xs text-gray-600 mt-1">Image 3 (Locale)</p>
+                        </div>
+                        <div th:if="${product.image3Path == null && product.image3Url != null}" class="text-center">
+                            <img th:src="${product.image3Url}" alt="Image 3" class="w-20 h-20 object-cover rounded border">
+                            <p class="text-xs text-gray-600 mt-1">Image 3 (URL)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section pour remplacer les images -->
+                <div>
+                    <label class="block text-sm mb-1">Nouvelle Image 1 (optionnel)</label>
+                    <input type="file" name="img1" class="border px-3 py-2 w-full rounded">
+                    <p class="text-xs text-gray-500 mt-1">Laissez vide pour conserver l'image actuelle</p>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Nouvelle Image 2 (optionnel)</label>
+                    <input type="file" name="img2" class="border px-3 py-2 w-full rounded">
+                    <p class="text-xs text-gray-500 mt-1">Laissez vide pour conserver l'image actuelle</p>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Nouvelle Image 3 (optionnel)</label>
+                    <input type="file" name="img3" class="border px-3 py-2 w-full rounded">
+                    <p class="text-xs text-gray-500 mt-1">Laissez vide pour conserver l'image actuelle</p>
+                </div>
+
+                <!-- Section pour les URLs d'images externes -->
+                <div class="md:col-span-2">
+                    <h3 class="text-md font-semibold mb-2">URLs d'images externes</h3>
+                    <p class="text-xs text-gray-500 mb-2">Ces URLs seront utilisées si les images locales ne sont pas disponibles</p>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">URL Image 1 (optionnel)</label>
+                    <input type="text" name="image1Url" th:value="${product.image1Url}" class="border px-3 py-2 w-full rounded" placeholder="https://exemple.com/image1.jpg">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">URL Image 2 (optionnel)</label>
+                    <input type="text" name="image2Url" th:value="${product.image2Url}" class="border px-3 py-2 w-full rounded" placeholder="https://exemple.com/image2.jpg">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">URL Image 3 (optionnel)</label>
+                    <input type="text" name="image3Url" th:value="${product.image3Url}" class="border px-3 py-2 w-full rounded" placeholder="https://exemple.com/image3.jpg">
+                </div>
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="md:col-span-2 text-right space-x-2">
+                    <a th:href="@{/seller/products}" class="px-5 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Annuler</a>
+                    <button class="px-5 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Modifier</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+
+<!-- Navigation vendeur moderne avec sidebar -->
+<div class="flex min-h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <div class="w-64 bg-white shadow-lg">
+        <div class="p-6 border-b">
+            <h2 class="text-xl font-bold text-gray-800">
+                <i class="fas fa-store text-blue-600 mr-2"></i><span th:text="#{seller.space}">Espace Vendeur</span>
+            </h2>
+        </div>
+
+        <nav class="mt-6">
+            <a th:href="@{/seller/dashboard}"
+               class="flex items-center px-6 py-3 text-blue-600 bg-blue-50 border-r-2 border-blue-600">
+                <i class="fas fa-chart-line mr-3"></i>
+                <span th:text="#{seller.dashboard}">Tableau de bord</span>
+            </a>
+            <a th:href="@{/seller/products}"
+               class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-box mr-3"></i>
+                <span th:text="#{seller.products}">Mes Produits</span>
+            </a>
+            <a th:href="@{/seller/orders}"
+               class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-shopping-cart mr-3"></i>
+                <span th:text="#{seller.orders}">Mes Commandes</span>
+            </a>
+
+        </nav>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="flex-1 p-8">
+        <!-- En-tête avec salutation -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2"><span th:text="#{seller.hello(${sellerName ?: 'Vendeur'})}">Bonjour, Vendeur !</span> 👋</h1>
+            <p class="text-gray-600" th:text="#{seller.activity.overview}">Voici un aperçu de votre activité commerciale aujourd'hui.</p>
+        </div>
+
+        <!-- Cartes de statistiques -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total des ventes -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium" th:text="#{seller.total.sales}">Ventes Totales</p>
+                        <p class="text-3xl font-bold" th:text="|${totalSales ?: '0'} ${currencySymbol ?: '€'}|">0 €</p>
+                        <p class="text-blue-200 text-sm" th:text="#{seller.month.growth}">+12% ce mois</p>
+                    </div>
+                    <div class="bg-blue-400 bg-opacity-30 rounded-full p-3">
+                        <i class="fas fa-euro-sign text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produits actifs -->
+            <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium" th:text="#{seller.active.products}">Produits Actifs</p>
+                        <p class="text-3xl font-bold" th:text="${totalProducts ?: '0'}">0</p>
+                        <p class="text-green-200 text-sm" th:text="#{seller.week.growth}">+3 cette semaine</p>
+                    </div>
+                    <div class="bg-green-400 bg-opacity-30 rounded-full p-3">
+                        <i class="fas fa-box text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commandes en attente -->
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-100 text-sm font-medium" th:text="#{seller.pending.orders}">Commandes en Attente</p>
+                        <p class="text-3xl font-bold" th:text="${pendingOrders ?: '0'}">0</p>
+                        <p class="text-orange-200 text-sm" th:text="#{seller.to.process}">À traiter</p>
+                    </div>
+                    <div class="bg-orange-400 bg-opacity-30 rounded-full p-3">
+                        <i class="fas fa-clock text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Évaluations -->
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm font-medium" th:text="#{seller.ratings}">Note Moyenne</p>
+                        <p class="text-3xl font-bold" th:text="${averageRating ?: '4.5'}">4.5</p>
+                        <div class="flex text-yellow-300 text-sm">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                    <div class="bg-purple-400 bg-opacity-30 rounded-full p-3">
+                        <i class="fas fa-star text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section graphiques et tableaux -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Graphique des ventes -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-chart-line text-blue-600 mr-2"></i><span th:text="#{seller.sales.evolution}">Évolution des Ventes</span>
+                </h3>
+                <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                    <canvas id="salesChart" width="400" height="200"></canvas>
+                    <div class="text-gray-500">
+                        <i class="fas fa-chart-line text-4xl mb-2"></i>
+                        <p th:text="#{seller.sales.chart}">Graphique des ventes</p>
+                        <p class="text-sm" th:text="#{seller.chart.data.display}">Les données seront affichées ici</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top produits -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-trophy text-yellow-500 mr-2"></i><span th:text="#{seller.top.products}">Top Produits</span>
+                </h3>
+                <div class="space-y-4">
+                    <div th:each="product, iterStat : ${topProducts ?: {1: 'Produit exemple 1', 2: 'Produit exemple 2', 3: 'Produit exemple 3'}}"
+                         th:if="${iterStat.index < 5}"
+                         class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center">
+                            <div th:with="badgeClass=${
+                                 iterStat.index == 0 ? 'w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-sm' :
+                                 iterStat.index == 1 ? 'w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-sm' :
+                                 iterStat.index == 2 ? 'w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm' :
+                                 'w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm'
+                                 }"
+                                 th:class="${badgeClass}"
+                                 th:text="${iterStat.index + 1}">1</div>
+                            <div class="ml-3">
+                                <p class="font-medium text-gray-800" th:text="${product.value ?: product}">Produit exemple</p>
+                                <p class="text-sm text-gray-500" th:text="${productSales != null && productSales.containsKey(product.key) ? productSales.get(product.key) + ' ' + #{seller.sales} : '25 ' + #{seller.sales}}">25 ventes</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-800" th:text="${productRevenues != null && productRevenues.containsKey(product.key) ? #numbers.formatDecimal(productRevenues.get(product.key).multiply(currencyRate),1,'COMMA',2,'POINT') + ' ' + currencySymbol : '0 ' + currencySymbol}">1,250€</p>
+                            <p class="text-sm text-green-600" th:text="${productGrowth != null && productGrowth.containsKey(product.key) ? '+' + productGrowth.get(product.key) + '%' : '+15%'}">+15%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commandes récentes -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-shopping-bag text-green-600 mr-2"></i><span th:text="#{seller.recent.orders}">Commandes Récentes</span>
+                </h3>
+                <a th:href="@{/seller/orders}" class="text-blue-600 hover:text-blue-800 font-medium">
+                    <span th:text="#{seller.view.all}">Voir toutes</span> <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-medium text-gray-600" th:text="#{seller.order}">Commande</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-600" th:text="#{seller.customer}">Client</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-600" th:text="#{seller.product}">Produit</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-600" th:text="#{seller.amount}">Montant</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-600" th:text="#{seller.status}">Statut</th>
+                            <th class="text-left py-3 px-4 font-medium text-gray-600" th:text="#{seller.date}">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${recentOrders ?: {}}" class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="py-4 px-4">
+                                <span class="font-medium text-blue-600" th:text="'#' + ${order.id ?: '001'}">#001</span>
+                            </td>
+                            <td class="py-4 px-4">
+                                <div>
+                                    <p class="font-medium text-gray-800" th:text="${order.buyer != null ? order.buyer.fullName : 'Client Exemple'}">Client Exemple</p>
+                                    <p class="text-sm text-gray-500" th:text="${order.buyer != null ? order.buyer.email : 'client@exemple.com'}">client@exemple.com</p>
+                                </div>
+                            </td>
+                            <td class="py-4 px-4">
+                                <p th:if="${sellerItemsByOrder != null && !#lists.isEmpty(sellerItemsByOrder.get(order.id))}"
+                                   class="text-gray-800"
+                                   th:text="${sellerItemsByOrder.get(order.id)[0].product.title}">Produit du vendeur</p>
+                                <p th:unless="${sellerItemsByOrder != null && !#lists.isEmpty(sellerItemsByOrder.get(order.id))}"
+                                   class="text-gray-500 italic" th:text="#{seller.no.product.available}">Aucun produit disponible</p>
+                            </td>
+                            <td class="py-4 px-4">
+                                <span class="font-bold text-gray-800"
+                                      th:text="${sellerAmountByOrder != null && sellerAmountByOrder.containsKey(order.id) ?
+                                              sellerAmountByOrder.get(order.id) : '0'} + ' EUR'">89.99 </span>
+                            </td>
+                            <td class="py-4 px-4">
+                                <span th:with="status=${order.status != null ? order.status.name() : 'CREATED'}"
+                                      th:classappend="${status == 'DELIVERED'} ? 'bg-green-100 text-green-800' : (${status == 'SHIPPED'} ? 'bg-blue-100 text-blue-800' : (${status == 'PAID'} ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'))"
+                                      class="px-3 py-1 rounded-full text-sm font-medium"
+                                      th:text="${order.status != null ? order.status : #{seller.pending}}">En attente</span>
+                            </td>
+                            <td class="py-4 px-4 text-gray-600" th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'dd/MM/yyyy') : #{seller.today}}">Aujourd'hui</td>
+                        </tr>
+                        <!-- Lignes d'exemple si pas de données -->
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a th:href="@{/seller/products}"
+               class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow group">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 rounded-lg p-3 group-hover:bg-blue-200 transition-colors">
+                        <i class="fas fa-plus text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="font-bold text-gray-800" th:text="#{seller.add.product}">Ajouter un Produit</h4>
+                        <p class="text-gray-600 text-sm" th:text="#{seller.publish.product}">Publier un nouveau produit</p>
+                    </div>
+                </div>
+            </a>
+
+            <a th:href="@{/seller/orders}"
+               class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow group">
+                <div class="flex items-center">
+                    <div class="bg-green-100 rounded-lg p-3 group-hover:bg-green-200 transition-colors">
+                        <i class="fas fa-shipping-fast text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="font-bold text-gray-800" th:text="#{seller.manage.orders}">Gérer les Commandes</h4>
+                        <p class="text-gray-600 text-sm" th:text="#{seller.process.pending.orders}">Traiter les commandes en attente</p>
+                    </div>
+                </div>
+            </a>
+
+            <a th:href="@{/seller/analytics}"
+               class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow group">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 rounded-lg p-3 group-hover:bg-purple-200 transition-colors">
+                        <i class="fas fa-chart-bar text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="font-bold text-gray-800" th:text="#{seller.view.analytics}">Voir les Analytiques</h4>
+                        <p class="text-gray-600 text-sm" th:text="#{seller.analyze.performance}">Analyser les performances</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Script pour le graphique -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes au chargement
+    const cards = document.querySelectorAll('.bg-gradient-to-r');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+
+    // Initialisation du graphique (Chart.js si disponible)
+    const canvas = document.getElementById('salesChart');
+    if (canvas && typeof Chart !== 'undefined') {
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                datasets: [{
+                    label: 'Ventes',
+                    data: [120, 190, 300, 500, 200, 300, 450],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+
+    </div>
+</div>
+</body>
+</html>

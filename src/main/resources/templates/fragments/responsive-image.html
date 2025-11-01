@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Responsive Image Fragment</title>
+</head>
+<body>
+
+<!--
+    Fragment pour afficher des images responsives optimisées
+    Utilisation : th:replace="~{fragments/responsive-image :: productImage(product=${p}, imageIndex=1, cssClass='class-css', alt='Description')}"
+
+    Avantages :
+    - Charge automatiquement la bonne taille selon l'appareil (économie de bande passante)
+    - Lazy loading natif (images chargées uniquement quand visibles)
+    - Cache côté navigateur (30 jours)
+    - Fallback automatique si l'image n'existe pas
+-->
+
+<!-- Image de produit pour CARTES (liste, grille) -->
+<div th:fragment="productCardImage(product, imageIndex, cssClass, alt)" class="responsive-image-wrapper">
+    <img th:if="${product != null}"
+         th:src="@{'/images/' + ${product.id} + '/' + ${imageIndex} + '/card'}"
+         th:srcset="@{'/images/' + ${product.id} + '/' + ${imageIndex} + '/thumbnail'} + ' 160w, ' +
+                    @{'/images/' + ${product.id} + '/' + ${imageIndex} + '/card'} + ' 400w, ' +
+                    @{'/images/' + ${product.id} + '/' + ${imageIndex} + '/medium'} + ' 800w'"
+         sizes="(max-width: 640px) 160px, (max-width: 768px) 400px, 400px"
+         th:alt="${alt != null ? alt : product.title}"
+         th:class="${cssClass}"
+         loading="lazy"
+         decoding="async"
+         onerror="this.src='/img/placeholder.png'">
+</div>
+
+<!-- Image de produit pour PAGE DE DÉTAIL -->
+<div th:fragment="productDetailImage(product, imageIndex, cssClass, alt)" class="responsive-image-wrapper">
+    <img th:if="${product != null}"
+         th:src="@{'/images/' + ${product.id} + '/' + ${imageIndex} + '/large'}"
+         th:srcset="@{'/images/' + ${product.id} + '/' + ${imageIndex} + '/medium'} + ' 800w, ' +
+                    @{'/images/' + ${product.id} + '/' + ${imageIndex} + '/large'} + ' 1200w, ' +
+                    @{'/images/' + ${product.id} + '/' + ${imageIndex} + '/detail'} + ' 1920w'"
+         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 800px, 1200px"
+         th:alt="${alt != null ? alt : product.title}"
+         th:class="${cssClass}"
+         loading="eager"
+         decoding="async"
+         onerror="this.src='/img/placeholder.png'">
+</div>
+
+<!-- Image de produit pour MINIATURE -->
+<div th:fragment="productThumbnail(product, imageIndex, cssClass, alt)" class="responsive-image-wrapper">
+    <img th:if="${product != null}"
+         th:src="@{'/images/' + ${product.id} + '/' + ${imageIndex} + '/thumbnail'}"
+         th:alt="${alt != null ? alt : product.title}"
+         th:class="${cssClass}"
+         loading="lazy"
+         decoding="async"
+         width="160"
+         height="160"
+         onerror="this.src='/img/placeholder.png'">
+</div>
+
+<!-- Image statique optimisée (pour bannières, catégories, etc.) -->
+<div th:fragment="staticImage(src, srcMedium, srcLarge, cssClass, alt)" class="responsive-image-wrapper">
+    <img th:src="${src}"
+         th:srcset="${src} + ' 400w, ' + ${srcMedium} + ' 800w, ' + ${srcLarge} + ' 1200w'"
+         sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px"
+         th:alt="${alt}"
+         th:class="${cssClass}"
+         loading="lazy"
+         decoding="async">
+</div>
+
+</body>
+</html>
+

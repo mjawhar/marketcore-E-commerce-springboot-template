@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+
+<h1 class="text-2xl font-bold mb-6" th:text="#{checkout.title}">Livraison & Paiement</h1>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="md:col-span-2">
+        <form th:action="@{/checkout}" method="post" th:object="${form}" class="space-y-6">
+            <!-- Section Adresse de livraison -->
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h2 class="text-lg font-semibold mb-4 flex items-center text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span th:text="#{checkout.address.title}">Adresse de livraison</span>
+                </h2>
+
+                <!-- Section de sélection rapide des adresses existantes -->
+                <div th:if="${userAddresses != null and !userAddresses.isEmpty()}" class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span th:text="#{checkout.address.saved.title}">Utiliser une adresse enregistrée</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div th:each="address : ${userAddresses}"
+                             class="border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-colors address-card"
+                             th:data-address-id="${address.id}"
+                             th:data-address="${address.adresse}"
+                             th:data-city="${address.ville}"
+                             th:data-postal="${address.codePostal}"
+                             th:data-phone="${address.telephone}">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h4 class="font-medium text-gray-900" th:text="${address.nom}">Nom de l'adresse</h4>
+                                    <span class="inline-block px-2 py-1 text-xs rounded-full mt-1"
+                                          th:classappend="${address.type.name() == 'LIVRAISON' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}"
+                                          th:text="${address.type.displayName}">Type</span>
+                                    <p class="text-sm text-gray-600 mt-1" th:text="${address.adresse}">Adresse</p>
+                                    <p class="text-sm text-gray-600" th:text="${address.ville + ', ' + address.codePostal}">Ville, CP</p>
+                                    <p class="text-sm text-gray-500" th:text="${address.telephone}">Téléphone</p>
+                                </div>
+                                <button type="button" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium select-address-btn" th:text="#{checkout.address.use}">
+                                    Utiliser
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-600 mb-2" th:text="#{checkout.address.new.title}">Ou saisissez une nouvelle adresse :</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" th:text="#{checkout.form.address}">Adresse</label>
+                        <input type="text" th:field="*{shippingAddress}" class="border border-gray-300 px-3 py-2 w-full rounded focus:ring-indigo-500 focus:border-indigo-500" th:classappend="${#fields.hasErrors('shippingAddress')} ? 'border-red-500' : ''">
+                        <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('shippingAddress')}" th:errors="*{shippingAddress}"></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" th:text="#{checkout.form.city}">Ville</label>
+                            <input type="text" th:field="*{shippingCity}" class="border border-gray-300 px-3 py-2 w-full rounded focus:ring-indigo-500 focus:border-indigo-500" th:classappend="${#fields.hasErrors('shippingCity')} ? 'border-red-500' : ''">
+                            <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('shippingCity')}" th:errors="*{shippingCity}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" th:text="#{checkout.form.postal}">Code postal</label>
+                            <input type="text" th:field="*{shippingPostalCode}"
+                                   pattern="^\d{6}$"
+                                   maxlength="6"
+                                   th:title="#{validation.postal.code}"
+                                   class="border border-gray-300 px-3 py-2 w-full rounded focus:ring-indigo-500 focus:border-indigo-500"
+                                   th:classappend="${#fields.hasErrors('shippingPostalCode')} ? 'border-red-500' : ''"
+                                   th:placeholder="#{address.form.postal.code.placeholder}">
+                            <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('shippingPostalCode')}" th:text="#{address.error.postal.code}"></p>
+                            <p class="text-red-500 text-sm mt-1 hidden" id="postal-code-error" th:text="#{validation.postal.code}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" th:text="#{checkout.form.phone}">Téléphone</label>
+                            <input type="tel" th:field="*{shippingPhone}"
+                                   pattern="^\d{10}$"
+                                   maxlength="10"
+                                   th:title="#{validation.phone}"
+                                   class="border border-gray-300 px-3 py-2 w-full rounded focus:ring-indigo-500 focus:border-indigo-500"
+                                   th:classappend="${#fields.hasErrors('shippingPhone')} ? 'border-red-500' : ''"
+                                   th:placeholder="#{address.form.phone.placeholder}">
+                            <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('shippingPhone')}" th:text="#{address.error.phone}"></p>
+                            <p class="text-red-500 text-sm mt-1 hidden" id="phone-error" th:text="#{validation.phone}"></p>
+                            <p class="text-gray-500 text-xs mt-1" th:text="#{validation.phone.format}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Méthode de livraison -->
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h2 class="text-lg font-semibold mb-4 flex items-center text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    <span th:text="#{checkout.delivery.title}">Méthode de livraison</span>
+                </h2>
+                <div>
+                    <select th:field="*{deliveryMethod}" class="border border-gray-300 px-3 py-2 w-full rounded focus:ring-indigo-500 focus:border-indigo-500" th:classappend="${#fields.hasErrors('deliveryMethod')} ? 'border-red-500' : ''">
+                        <option th:each="mode : ${deliveryModes}"
+                                th:value="${mode.code}"
+                                th:text="|${mode.name} - ${#numbers.formatDecimal(mode.price,1,'COMMA',2,'POINT')} ${currencySymbol}|">
+                        </option>
+                    </select>
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('deliveryMethod')}" th:errors="*{deliveryMethod}"></p>
+                </div>
+            </div>
+
+            <!-- Section Méthode de paiement -->
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h2 class="text-lg font-semibold mb-4 flex items-center text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    <span th:text="#{checkout.payment.title}">Méthode de paiement</span>
+                </h2>
+                <div>
+                    <select th:field="*{paymentMethod}" class="border border-gray-300 px-3 py-2 w-full rounded focus:ring-indigo-500 focus:border-indigo-500" th:classappend="${#fields.hasErrors('paymentMethod')} ? 'border-red-500' : ''">
+                        <option value="cod" th:text="#{checkout.payment.cod}">Paiement à la livraison</option>
+                        <option value="card">Carte bancaire (non disponible)</option>
+                    </select>
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}"></p>
+                    <p class="text-sm text-gray-500 mt-2" th:text="#{checkout.payment.cod.desc}">Payez directement lors de la réception de votre commande</p>
+                </div>
+            </div>
+
+            <!-- Bouton de confirmation -->
+            <div class="flex items-center justify-end">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button class="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span th:text="#{checkout.place.order}">Confirmer la commande</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Récapitulatif amélioré -->
+    <div class="bg-white p-6 rounded-xl shadow-lg">
+        <h2 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span th:text="#{checkout.order.summary}">Récapitulatif</span>
+        </h2>
+
+        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+            <ul class="space-y-3">
+                <li th:each="i : ${items}" class="flex items-center justify-between border-b border-gray-200 pb-2 last:border-0 last:pb-0">
+                    <div class="flex items-center">
+                        <div class="text-gray-800 font-medium" th:text="${i.product.title}"></div>
+                        <span class="ml-2 text-gray-600 text-sm" th:text="| x ${i.quantity}|"></span>
+                    </div>
+                    <span class="font-medium text-indigo-700" th:text="|${#numbers.formatDecimal(i.price,1,'COMMA',2,'POINT')} ${currencySymbol}|"></span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex justify-between text-sm text-gray-700 mb-2">
+                <span th:text="#{cart.summary.subtotal} + ':'">Sous-total:</span>
+                <span th:with="subtotal=${totalPrice - deliveryCost}"
+                      th:text="|${#numbers.formatDecimal(subtotal,1,'COMMA',2,'POINT')} ${currencySymbol}|"></span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-700" id="delivery-cost-display">
+                <span th:text="#{checkout.order.shipping} + ':'">Frais de livraison:</span>
+                <span th:text="|${#numbers.formatDecimal(deliveryCost,1,'COMMA',2,'POINT')} ${currencySymbol}|" id="delivery-cost-value"></span>
+            </div>
+            <div class="flex justify-between font-semibold mt-4 pt-4 border-t border-gray-200 text-lg">
+                <span th:text="#{checkout.order.total} + ':'">Total:</span>
+                <span class="text-indigo-700" th:text="|${#numbers.formatDecimal(totalPrice,1,'COMMA',2,'POINT')} ${currencySymbol}|" id="total-price-value"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Récupération des données des méthodes de livraison depuis Thymeleaf
+    const deliveryModes = /*[[${deliveryModes}]]*/ [];
+    const currencySymbol = /*[[${currencySymbol}]]*/ '';
+    const subtotal = /*[[${totalPrice - deliveryCost}]]*/ 0;
+
+    // Fonction pour formater un nombre en format monétaire
+    function formatPrice(price) {
+        return price.toFixed(2).replace('.', ',') + ' ' + currencySymbol;
+    }
+
+    // Fonction pour mettre à jour les frais de livraison et le total
+    function updatePrices() {
+        const selectedDeliveryMethod = document.querySelector('select[name="deliveryMethod"]').value;
+        const selectedDeliveryMode = deliveryModes.find(mode => mode.code === selectedDeliveryMethod);
+
+        if (selectedDeliveryMode) {
+            // Mise à jour des frais de livraison
+            document.getElementById('delivery-cost-value').textContent = formatPrice(selectedDeliveryMode.price);
+
+            // Mise à jour du total
+            const newTotal = subtotal + selectedDeliveryMode.price;
+            document.getElementById('total-price-value').textContent = formatPrice(newTotal);
+        }
+    }
+
+    // Fonction pour pré-remplir le formulaire avec une adresse sélectionnée
+    function fillAddressForm(address, city, postal, phone) {
+        document.querySelector('input[name="shippingAddress"]').value = address;
+        document.querySelector('input[name="shippingCity"]').value = city;
+        document.querySelector('input[name="shippingPostalCode"]').value = postal;
+        document.querySelector('input[name="shippingPhone"]').value = phone;
+
+        // Animation visuelle pour confirmer le remplissage
+        const inputs = document.querySelectorAll('input[name^="shipping"]');
+        inputs.forEach(input => {
+            input.classList.add('border-green-500', 'bg-green-50');
+            setTimeout(() => {
+                input.classList.remove('border-green-500', 'bg-green-50');
+            }, 1000);
+        });
+    }
+
+    // Fonction pour réinitialiser la sélection des cartes d'adresse
+    function resetAddressSelection() {
+        document.querySelectorAll('.address-card').forEach(card => {
+            card.classList.remove('border-indigo-500', 'bg-indigo-50');
+            card.classList.add('border-gray-200');
+        });
+    }
+
+    // Attacher l'événement change au select de méthode de livraison
+    document.querySelector('select[name="deliveryMethod"]').addEventListener('change', updatePrices);
+
+    // Fonctions de validation côté front-end
+    function validatePostalCode(postalCode) {
+        const postalRegex = /^\d{6}$/;
+        return postalRegex.test(postalCode);
+    }
+
+    function validatePhone(phone) {
+        const phoneRegex = /^\d{10}$/;
+        return phoneRegex.test(phone);
+    }
+
+    function showFieldError(fieldName, errorId, message) {
+        const field = document.querySelector(`input[name="${fieldName}"]`);
+        const errorElement = document.getElementById(errorId);
+
+        field.classList.add('border-red-500');
+        field.classList.remove('border-gray-300', 'border-green-500');
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+    }
+
+    function hideFieldError(fieldName, errorId) {
+        const field = document.querySelector(`input[name="${fieldName}"]`);
+        const errorElement = document.getElementById(errorId);
+
+        field.classList.remove('border-red-500');
+        field.classList.add('border-gray-300');
+        errorElement.classList.add('hidden');
+    }
+
+    // Messages d'erreur internationalisés
+    const messages = {
+        postalCode: /*[[#{validation.postal.code}]]*/ 'Le code postal doit contenir exactement 6 chiffres',
+        phone: /*[[#{validation.phone}]]*/ 'Le numéro de téléphone doit contenir exactement 10 chiffres'
+    };
+
+    function validateAndShowErrors() {
+        let isValid = true;
+
+        // Validation du code postal
+        const postalCode = document.querySelector('input[name="shippingPostalCode"]').value;
+        if (postalCode && !validatePostalCode(postalCode)) {
+            showFieldError('shippingPostalCode', 'postal-code-error', messages.postalCode);
+            isValid = false;
+        } else if (postalCode) {
+            hideFieldError('shippingPostalCode', 'postal-code-error');
+        }
+
+        // Validation du téléphone
+        const phone = document.querySelector('input[name="shippingPhone"]').value;
+        if (phone && !validatePhone(phone)) {
+            showFieldError('shippingPhone', 'phone-error', messages.phone);
+            isValid = false;
+        } else if (phone) {
+            hideFieldError('shippingPhone', 'phone-error');
+        }
+
+        return isValid;
+    }
+
+    // Fonction pour valider le formulaire avant l'envoi
+    function validateForm(event) {
+        // Appeler la fonction de validation et d'affichage des erreurs
+        const isValid = validateAndShowErrors();
+
+        // Si le formulaire n'est pas valide, empêcher l'envoi
+        if (!isValid) {
+            event.preventDefault();
+        }
+    }
+
+    // Attacher la validation du formulaire à l'événement submit
+    document.querySelector('form').addEventListener('submit', validateForm);
+
+    // Gestion de la sélection des adresses enregistrées
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mise à jour initiale des prix
+        updatePrices();
+
+        // Gestion des clics sur les cartes d'adresse
+        document.querySelectorAll('.address-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Récupérer les données de l'adresse
+                const address = this.dataset.address;
+                const city = this.dataset.city;
+                const postal = this.dataset.postal;
+                const phone = this.dataset.phone;
+
+                // Réinitialiser la sélection
+                resetAddressSelection();
+
+                // Marquer cette carte comme sélectionnée
+                this.classList.remove('border-gray-200');
+                this.classList.add('border-indigo-500', 'bg-indigo-50');
+
+                // Pré-remplir le formulaire
+                fillAddressForm(address, city, postal, phone);
+            });
+        });
+
+        // Gestion des boutons "Utiliser"
+        document.querySelectorAll('.select-address-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Empêcher la propagation du clic sur la carte
+                const card = this.closest('.address-card');
+                card.click(); // Déclencher le clic sur la carte
+            });
+        });
+
+        // Réinitialiser la sélection quand l'utilisateur saisit manuellement
+        document.querySelectorAll('input[name^="shipping"]').forEach(input => {
+            input.addEventListener('input', function() {
+                resetAddressSelection();
+            });
+        });
+
+        // Validation en temps réel pour le code postal
+        const postalCodeInput = document.querySelector('input[name="shippingPostalCode"]');
+        postalCodeInput.addEventListener('input', function() {
+            const value = this.value;
+            if (value.length > 0) {
+                if (validatePostalCode(value)) {
+                    hideFieldError('shippingPostalCode', 'postal-code-error');
+                    this.classList.add('border-green-500');
+                    this.classList.remove('border-red-500');
+                } else {
+                    showFieldError('shippingPostalCode', 'postal-code-error', messages.postalCode);
+                }
+            } else {
+                hideFieldError('shippingPostalCode', 'postal-code-error');
+                this.classList.remove('border-red-500', 'border-green-500');
+                this.classList.add('border-gray-300');
+            }
+        });
+
+        // Validation en temps réel pour le téléphone
+        const phoneInput = document.querySelector('input[name="shippingPhone"]');
+        phoneInput.addEventListener('input', function() {
+            const value = this.value;
+            if (value.length > 0) {
+                if (validatePhone(value)) {
+                    hideFieldError('shippingPhone', 'phone-error');
+                    this.classList.add('border-green-500');
+                    this.classList.remove('border-red-500');
+                } else {
+                    showFieldError('shippingPhone', 'phone-error', messages.phone);
+                }
+            } else {
+                hideFieldError('shippingPhone', 'phone-error');
+                this.classList.remove('border-red-500', 'border-green-500');
+                this.classList.add('border-gray-300');
+            }
+        });
+
+        // Permettre seulement les chiffres dans le code postal
+        postalCodeInput.addEventListener('keypress', function(e) {
+            if (!/\d/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "build": {
+    "type": "maven",
+    "goal": "clean package"
+  },
+  "deploy": {
+    "jarName": "target/marketcore-pro-v3-0.0.1-SNAPSHOT.jar"
+  }
+}
+

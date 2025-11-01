@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{admin/admin-layout-v2 :: layout(~{::content})}">
+    <div th:fragment="content">
+
+<h1 class="text-2xl font-bold mb-6" th:text="#{admin.products.title}">Gestion produits</h1>
+
+<!-- Boutons d'action -->
+<div class="mb-4 flex space-x-4">
+    <button id="toggleAddForm" class="px-5 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+        <span id="toggleText" th:text="'+ ' + #{admin.products.add}">+ Ajouter un produit</span>
+    </button>
+    
+    <a href="/admin/products/import" class="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors inline-flex items-center">
+        <i class="fas fa-file-import mr-2"></i><span th:text="#{admin.products.import}"> Importer CSV</span>
+    </a>
+</div>
+
+<!-- Formulaire d'ajout (caché par défaut) -->
+<div id="addProductForm" class="hidden">
+    <h2 class="text-xl font-semibold mb-2" th:text="#{admin.products.add.form.title}">Ajouter un produit</h2>
+    <form th:action="@{/admin/products}" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded-xl shadow grid md:grid-cols-2 gap-4 text-sm mb-6">
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.title}">Titre</label>
+            <input type="text" name="title" class="border px-3 py-2 w-full rounded" required>
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.brand}">Marque</label>
+            <input type="text" name="brand" class="border px-3 py-2 w-full rounded" th:placeholder="#{admin.products.form.brand}">
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.price}">Prix</label>
+            <input type="text" name="priceStr" class="border px-3 py-2 w-full rounded" required>
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.discounted.price}">Prix réduit (optionnel)</label>
+            <input type="text" name="discountedPriceStr" class="border px-3 py-2 w-full rounded" th:placeholder="#{admin.products.form.discounted.price}">
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.stock}">Stock</label>
+            <select name="stock" class="border px-3 py-2 w-full rounded" required>
+                <option value="" disabled selected th:text="#{admin.products.form.stock.select}">-- Sélectionner le statut du stock --</option>
+                <option value="instock" th:text="#{admin.products.form.stock.instock}">En stock</option>
+                <option value="outofstock" th:text="#{admin.products.form.stock.outofstock}">Rupture de stock</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.type}">Type de produit</label>
+            <select name="productType" class="border px-3 py-2 w-full rounded" required>
+                <option value="" disabled selected th:text="#{admin.products.form.type.select}">-- Sélectionner le type de produit --</option>
+                <option value="NEW" th:text="#{admin.products.form.type.new}">Neuf</option>
+                <option value="USED" th:text="#{admin.products.form.type.used}">D'occasion</option>
+            </select>
+        </div>
+        <div class="md:col-span-2">
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.short.desc}">Description courte</label>
+            <input type="text" name="shortDescription" class="border px-3 py-2 w-full rounded" maxlength="255" required th:placeholder="#{admin.products.form.short.desc}">
+        </div>
+        <div class="md:col-span-2">
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.description}">Description</label>
+            <textarea name="description" class="border px-3 py-2 w-full rounded"></textarea>
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.category}">Catégorie</label>
+            <select name="categoryId" class="border px-3 py-2 w-full rounded" required>
+                <option value="" disabled selected th:text="#{admin.products.form.category.select}">-- Sélectionner une catégorie --</option>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.seller}">Vendeur</label>
+            <select name="sellerId" id="sellerId" class="border px-3 py-2 w-full rounded" required>
+                <option th:each="s, iterStat : ${sellers}"
+                        th:value="${s.id}"
+                        th:text="${s.fullName}"
+                        th:selected="${iterStat.first}">
+                </option>
+            </select>
+        </div>
+
+        <!-- Champ Statut du produit - visible uniquement pour les administrateurs -->
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.status}">Statut du produit</label>
+            <select name="status" class="border px-3 py-2 w-full rounded" required>
+                <option value="" disabled selected th:text="#{admin.products.form.status.select}">-- Sélectionner le statut --</option>
+                <option value="NEW" th:text="#{admin.products.form.status.new}">Nouveau</option>
+                <option value="IN_PROGRESS" th:text="#{admin.products.form.status.progress}">En cours</option>
+                <option value="VALIDATED" th:text="#{admin.products.form.status.validated}">Validé</option>
+            </select>
+        </div>
+
+        <!-- Champ Produit actif - visible uniquement pour les administrateurs -->
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.active}">Produit actif</label>
+            <select name="active" class="border px-3 py-2 w-full rounded" required>
+                <option value="true" selected th:text="#{admin.products.form.active.yes}">Actif (visible sur le site)</option>
+                <option value="false" th:text="#{admin.products.form.active.no}">Inactif (masqué du site)</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.image1}">Image 1</label>
+            <input type="file" name="img1" class="border px-3 py-2 w-full rounded">
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.image2}">Image 2</label>
+            <input type="file" name="img2" class="border px-3 py-2 w-full rounded">
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.image3}">Image 3</label>
+            <input type="file" name="img3" class="border px-3 py-2 w-full rounded">
+        </div>
+
+        <!-- Champs pour les URLs d'images externes -->
+        <div class="md:col-span-2">
+            <h3 class="text-sm font-semibold mb-2" th:text="#{admin.products.form.external.urls}">URLs d'images externes (optionnel)</h3>
+            <p class="text-xs text-gray-500 mb-2" th:text="#{admin.products.form.external.urls.desc}">Ces URLs seront utilisées si les images locales ne sont pas disponibles</p>
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.url1}">URL Image 1 (optionnel)</label>
+            <input type="text" name="image1Url" class="border px-3 py-2 w-full rounded" placeholder="https://exemple.com/image1.jpg">
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.url2}">URL Image 2 (optionnel)</label>
+            <input type="text" name="image2Url" class="border px-3 py-2 w-full rounded" placeholder="https://exemple.com/image2.jpg">
+        </div>
+        <div>
+            <label class="block text-sm mb-1" th:text="#{admin.products.form.url3}">URL Image 3 (optionnel)</label>
+            <input type="text" name="image3Url" class="border px-3 py-2 w-full rounded" placeholder="https://exemple.com/image3.jpg">
+        </div>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <div class="md:col-span-2 flex justify-between">
+            <button type="button" id="cancelAdd" class="px-5 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors" th:text="#{admin.products.form.cancel}">Annuler</button>
+            <button type="submit" class="px-5 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors" th:text="#{admin.products.form.save}">Enregistrer</button>
+        </div>
+    </form>
+</div>
+
+<form method="get" class="mb-4 space-y-2">
+    <div class="flex space-x-2 text-sm">
+        <input type="text" name="q" th:value="${q}" th:placeholder="#{admin.products.search.placeholder}" class="border px-3 py-2 rounded flex-1">
+        <button class="px-4 py-2 bg-gray-200 rounded" th:text="#{admin.products.search.button}">Chercher</button>
+    </div>
+    <div class="flex space-x-2 text-sm">
+        <select name="seller" class="border px-3 py-2 rounded flex-1">
+            <option value="" th:text="#{admin.products.filter.seller}">-- Sélectionner un vendeur --</option>
+            <option th:each="s : ${sellers}"
+                    th:value="${s.fullName}"
+                    th:text="${s.fullName}"
+                    th:selected="${sellerSearch != null and sellerSearch.equals(s.fullName)}">
+            </option>
+        </select>
+        <button class="px-4 py-2 bg-blue-200 rounded" th:text="#{admin.products.filter.seller.button}">Filtrer par vendeur</button>
+    </div>
+    <div th:if="${q != null or sellerSearch != null}" class="text-sm">
+        <a href="/admin/products" class="text-blue-600 hover:underline" th:text="#{admin.products.clear.filters}">× Effacer les filtres</a>
+    </div>
+</form>
+
+<table class="w-full bg-white rounded-xl shadow text-sm mb-6 overflow-hidden">
+    <thead class="bg-gray-50">
+        <tr class="text-left">
+            <th class="p-2" th:text="#{admin.products.table.id}">ID</th>
+            <th class="p-2" th:text="#{admin.products.table.title}">Titre</th>
+            <th class="p-2" th:text="#{admin.products.table.price}">Prix</th>
+            <th class="p-2" th:text="#{admin.products.table.seller}">Vendeur</th>
+            <th class="p-2" th:text="#{admin.products.table.category}">Catégorie</th>
+            <th class="p-2" th:text="#{admin.products.table.actions}">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="p : ${products}" class="border-t">
+            <td class="p-2" th:text="${p.id}"></td>
+            <td class="p-2" th:text="${p.title}"></td>
+            <td class="p-2" th:text="|${#numbers.formatDecimal(p.price.multiply(currencyRate),1,'COMMA',2,'POINT')} ${currencySymbol}|"></td>
+            <td class="p-2" th:text="${p.seller != null ? p.seller.fullName : 'N/A'}"></td>
+            <td class="p-2" th:text="${p.category != null ? p.category.name : ''}"></td>
+            <td class="p-2">
+                <a th:href="@{'/admin/products/edit/' + ${p.id}}" class="text-blue-600 text-xs mr-2" th:text="#{admin.products.action.edit}">Modifier</a>
+                <a th:href="@{'/admin/products/delete/' + ${p.id}}" class="text-red-600 text-xs" th:text="#{admin.products.action.delete}">Supprimer</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('toggleAddForm');
+    const addForm = document.getElementById('addProductForm');
+    const toggleText = document.getElementById('toggleText');
+    const cancelBtn = document.getElementById('cancelAdd');
+
+    toggleBtn.addEventListener('click', function() {
+        if (addForm.classList.contains('hidden')) {
+            addForm.classList.remove('hidden');
+            toggleText.textContent = '[[#{admin.products.toggle.hide}]]';
+            toggleBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            toggleBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+        } else {
+            addForm.classList.add('hidden');
+            toggleText.textContent = '+ Ajouter un produit';
+            toggleBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+            toggleBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        }
+    });
+
+    cancelBtn.addEventListener('click', function() {
+        addForm.classList.add('hidden');
+        toggleText.textContent = '+ Ajouter un produit';
+        toggleBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+        toggleBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        // Réinitialiser le formulaire
+        addForm.querySelector('form').reset();
+    });
+});
+</script>
+
+    </div>
+</div>
+</body>
+</html>

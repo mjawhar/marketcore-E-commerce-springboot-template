@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:fragment="layout(content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- CSRF Token -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <title th:text="${pageTitle != null ? pageTitle + ' | Administration Marketcore' : 'Administration Marketcore'}">Administration Marketcore</title>
+
+    <!-- Tailwind CSS et FontAwesome -->
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Alpine.js pour les interactions UI -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Chart.js pour les graphiques (à charger seulement si nécessaire) -->
+    <script th:if="${showCharts != null and showCharts}" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+
+        /* Amélioration du rendu du texte */
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* Animation de transition pour le sidebar */
+        .sidebar-transition {
+            transition: width 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Scrollbar personnalisée */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Toast notifications */
+        .toast {
+            animation: toast-in-right 0.7s;
+        }
+
+        @keyframes toast-in-right {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen"
+      x-data="{
+          sidebarOpen: window.innerWidth >= 1024,
+          sidebarMini: false,
+          showDropdownUser: false,
+          showDropdownNotif: false,
+          showToast: false,
+          toastMessage: '',
+          toastType: 'success'
+      }">
+
+                <!-- En-tête de section avec séparateur -->
+                <div x-show="!sidebarMini" class="pt-4 pb-2">
+                    <div class="px-3 flex items-center">
+                        <hr class="flex-grow border-gray-700">
+                        <span class="px-2 text-xs font-medium text-gray-400 uppercase" th:text="#{admin.section.content}">Contenu</span>
+                        <hr class="flex-grow border-gray-700">
+                    </div>
+                </div>
+                <div x-show="sidebarMini" class="pt-4 pb-2">
+                    <hr class="border-gray-700">
+                </div>
+
+                <li>
+                    <a href="/admin/cms" style="color: #f3f4f6;" class="flex items-center p-3 font-medium rounded-lg hover:bg-gray-700 hover:text-white group transition-colors"
+                       th:classappend="${active == 'cms' ? 'bg-gray-700 text-white border-l-4 border-blue-500' : ''}">
+                        <i class="fas fa-pen-to-square w-5 h-5 text-center"></i>
+                        <span x-show="!sidebarMini" class="ml-3 whitespace-nowrap" th:text="#{admin.layout.cms}">CMS</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/sitemap" style="color: #f3f4f6;" class="flex items-center p-3 font-medium rounded-lg hover:bg-gray-700 hover:text-white group transition-colors"
+                       th:classappend="${active == 'sitemap' ? 'bg-gray-700 text-white border-l-4 border-blue-500' : ''}">
+                        <i class="fas fa-sitemap w-5 h-5 text-center"></i>
+                        <span x-show="!sidebarMini" class="ml-3 whitespace-nowrap" th:text="#{admin.layout.sitemap}">Sitemap</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/settings" style="color: #f3f4f6;" class="flex items-center p-3 font-medium rounded-lg hover:bg-gray-700 hover:text-white group transition-colors"
+                       th:classappend="${active == 'settings' ? 'bg-gray-700 text-white border-l-4 border-blue-500' : ''}">
+                        <i class="fas fa-gear w-5 h-5 text-center"></i>
+                        <span x-show="!sidebarMini" class="ml-3 whitespace-nowrap" th:text="#{admin.layout.settings}">Paramètres</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Bouton pour réduire/agrandir le sidebar (en bas) -->
+            <div class="pt-6 mt-auto flex justify-center">
+                <button
+                    @click="sidebarMini = !sidebarMini"
+                    class="p-2 text-gray-400 rounded hover:bg-gray-700 hover:text-white"
+                    x-show="sidebarOpen">
+                    <i class="fas" :class="sidebarMini ? 'fa-angles-right' : 'fa-angles-left'"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Header et contenu principal -->
+    <div class="sidebar-transition"
+         :class="{
+             'lg:ml-64': sidebarOpen && !sidebarMini,
+             'lg:ml-20': sidebarMini && sidebarOpen,
+             'lg:ml-0': !sidebarOpen
+         }">
+        <!-- Header -->
+        <header class="sticky top-0 z-30 bg-white shadow">
+            <div class="px-3 py-3 lg:px-5 flex items-center justify-between">
+                <!-- Bouton toggle pour sidebar mobile -->
+                <div class="flex items-center">
+                    <button @click="sidebarOpen = !sidebarOpen" class="p-2 mr-2 text-gray-600 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="lg:hidden font-semibold text-xl text-gray-700">Marketcore</div>
+                </div>
+
+                <!-- Boutons d'actions rapides pour mobile et desktop -->
+                <div class="flex items-center">
+                    <!-- Barre de recherche (visible seulement sur desktop) -->
+                    <form class="hidden lg:flex items-center mx-4 max-w-sm">
+                        <label for="simple-search" class="sr-only">Recherche</label>
+                        <div class="relative w-full">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2" placeholder="Rechercher..." required>
+                        </div>
+                        <button type="submit" class="p-2 ml-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                            <i class="fas fa-search"></i>
+                            <span class="sr-only">Rechercher</span>
+                        </button>
+                    </form>
+
+                    <!-- Bouton de notification -->
+                    <div class="relative">
+                        <button @click="showDropdownNotif = !showDropdownNotif; showDropdownUser = false" class="p-2 mr-3 text-gray-600 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full" th:if="${notificationCount != null && notificationCount > 0}" th:text="${notificationCount}">2</span>
+                        </button>
+
+                        <!-- Dropdown des notifications -->
+                        <div x-show="showDropdownNotif"
+                             @click.away="showDropdownNotif = false"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             class="absolute right-0 z-10 mt-2 w-80 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                             x-cloak>
+                            <div class="px-4 py-2 font-medium border-b border-gray-200 text-gray-700">
+                                Notifications
+                            </div>
+                            <div class="max-h-64 overflow-y-auto">
+                                <!-- Liste des notifications -->
+                                <div th:if="${notifications != null && !notifications.empty}">
+                                    <a th:each="notif : ${notifications}" th:href="${notif.link}" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-100">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0">
+                                                <i class="fas fa-circle-info text-blue-500" th:class="${notif.type == 'ORDER' ? 'fa-shopping-cart text-green-500' : (notif.type == 'USER' ? 'fa-user text-purple-500' : 'fa-circle-info text-blue-500')}"></i>
+                                            </div>
+                                            <div class="ml-3 w-0 flex-1">
+                                                <p class="text-sm font-medium text-gray-900" th:text="${notif.title}">Nouvelle commande</p>
+                                                <p class="text-xs text-gray-500" th:text="${notif.message}">Une nouvelle commande a été passée</p>
+                                                <p class="text-xs text-gray-400 mt-1" th:text="${#temporals.format(notif.createdAt, 'dd/MM/yyyy HH:mm')}">13/10/2025 14:30</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div th:unless="${notifications != null && !notifications.empty}" class="px-4 py-6 text-center text-gray-500">
+                                    <i class="fas fa-bell-slash text-gray-400 text-xl mb-2"></i>
+                                    <p>Aucune notification</p>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-200 px-4 py-2">
+                                <a href="/admin/notifications" class="text-sm text-blue-500 hover:text-blue-600 flex justify-center items-center">
+                                    <span>Voir toutes les notifications</span>
+                                    <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bouton de profil utilisateur -->
+                    <div class="relative">
+                        <button @click="showDropdownUser = !showDropdownUser; showDropdownNotif = false" class="flex items-center text-sm font-medium text-gray-700 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 p-1">
+                            <span class="sr-only">Menu utilisateur</span>
+                            <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center overflow-hidden mr-1">
+                                <img th:if="${adminUser != null && adminUser.profileImageUrl != null}" th:src="${adminUser.profileImageUrl}" alt="Photo de profil" class="w-8 h-8 object-cover">
+                                <span th:unless="${adminUser != null && adminUser.profileImageUrl != null}" sec:authentication="name" class="uppercase font-bold">A</span>
+                            </div>
+                            <span class="hidden md:block truncate max-w-[100px]" sec:authentication="name">Admin</span>
+                            <i class="fas fa-chevron-down ml-1 text-gray-400 text-xs"></i>
+                        </button>
+
+                        <!-- Dropdown du profil -->
+                        <div x-show="showDropdownUser"
+                             @click.away="showDropdownUser = false"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                             x-cloak>
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <span class="block text-sm text-gray-900" sec:authentication="name">Admin</span>
+                                <span class="block text-sm text-gray-500" sec:authentication="principal.username">admin@example.com</span>
+                            </div>
+                            <a href="/admin/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-gear mr-2 text-gray-500"></i> Paramètres
+                            </a>
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-right-from-bracket mr-2 text-gray-500"></i> Déconnexion
+                                </button>
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenu principal -->
+        <main class="p-4 lg:p-6">
+            <!-- Fil d'Ariane et titre de la page -->
+            <div class="mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h1 th:if="${pageTitle != null}" class="text-2xl font-bold text-gray-800" th:text="${pageTitle}">Titre de la page</h1>
+                        <div class="text-sm breadcrumbs text-gray-500 flex items-center mt-1" th:if="${breadcrumbs != null}">
+                            <ul class="flex flex-wrap items-center">
+                                <li>
+                                    <a href="/admin">
+                                        <i class="fas fa-home mr-2"></i>
+                                        Admin
+                                    </a>
+                                </li>
+                                <li th:each="crumb, status : ${breadcrumbs}" class="flex items-center">
+                                    <i class="fas fa-chevron-right mx-2 text-gray-400 text-xs"></i>
+                                    <a th:if="${!status.last && crumb.url != null}" th:href="${crumb.url}" th:text="${crumb.label}">Élément</a>
+                                    <span th:if="${status.last || crumb.url == null}" th:text="${crumb.label}" class="font-medium">Élément actuel</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Actions rapides (si définies) -->
+                    <div th:if="${quickActions != null}" class="flex items-center space-x-2 mt-4 md:mt-0">
+                        <div th:each="action : ${quickActions}">
+                            <a th:if="${action.type == 'link'}"
+                               th:href="${action.url}"
+                               class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg"
+                               th:classappend="${
+                                   action.style == 'primary' ? 'bg-blue-500 text-white hover:bg-blue-600' :
+                                   action.style == 'secondary' ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' :
+                                   action.style == 'success' ? 'bg-green-500 text-white hover:bg-green-600' :
+                                   action.style == 'danger' ? 'bg-red-500 text-white hover:bg-red-600' :
+                                   'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                               }">
+                                <i th:if="${action.icon != null}" th:class="${'fas fa-' + action.icon + ' mr-2'}"></i>
+                                <span th:text="${action.label}">Action</span>
+                            </a>
+                            <button th:if="${action.type == 'button'}"
+                                    th:data-action="${action.action}"
+                                    th:onclick="${action.onclick}"
+                                    class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg"
+                                    th:classappend="${
+                                        action.style == 'primary' ? 'bg-blue-500 text-white hover:bg-blue-600' :
+                                        action.style == 'secondary' ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' :
+                                        action.style == 'success' ? 'bg-green-500 text-white hover:bg-green-600' :
+                                        action.style == 'danger' ? 'bg-red-500 text-white hover:bg-red-600' :
+                                        'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                    }">
+                                <i th:if="${action.icon != null}" th:class="${'fas fa-' + action.icon + ' mr-2'}"></i>
+                                <span th:text="${action.label}">Action</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section principale - Contenu injecté -->
+            <div th:replace="${content}">Le contenu sera inséré ici</div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="p-4 bg-white shadow md:flex md:items-center md:justify-between md:p-6 border-t">
+            <span class="text-sm text-gray-500 sm:text-center">© 2025 <a href="https://Marketcore.com/" class="hover:underline">Marketcore</a>. Tous droits réservés.</span>
+            <ul class="flex flex-wrap items-center mt-3 text-sm text-gray-500 sm:mt-0">
+                <li>
+                    <a href="/admin/dashboard" class="mr-4 hover:underline md:mr-6">Dashboard</a>
+                </li>
+                <li>
+                    <a href="/admin/settings" class="mr-4 hover:underline md:mr-6">Paramètres</a>
+                </li>
+                <li>
+                    <span id="currentTime" class="text-xs text-gray-400"></span>
+                </li>
+            </ul>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Afficher l'heure actuelle dans le footer
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('currentTime').textContent = now.toLocaleDateString('fr-FR', options);
+        }
+
+        // Mettre à jour l'heure toutes les minutes
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 60000);
+
+        // Fonction utilitaire pour afficher des notifications
+        function showToast(message, type = 'success') {
+            window.dispatchEvent(new CustomEvent('show-toast', {
+                detail: {
+                    message: message,
+                    type: type
+                }
+            }));
+        }
+
+        // Écouteur d'événement pour les toasts
+        window.addEventListener('show-toast', (e) => {
+            const data = e.detail;
+            const alpineRoot = document.querySelector('[x-data]').__x.$data;
+
+            alpineRoot.toastMessage = data.message;
+            alpineRoot.toastType = data.type;
+            alpineRoot.showToast = true;
+
+            // Auto-fermeture après 5 secondes
+            setTimeout(() => {
+                alpineRoot.showToast = false;
+            }, 5000);
+        });
+
+        // Conserver l'état du sidebar en localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const alpineRoot = document.querySelector('[x-data]').__x.$data;
+
+            // Restaurer l'état du sidebar
+            const savedSidebarOpen = localStorage.getItem('admin_sidebar_open');
+            const savedSidebarMini = localStorage.getItem('admin_sidebar_mini');
+
+            if (savedSidebarOpen !== null) {
+                alpineRoot.sidebarOpen = savedSidebarOpen === 'true';
+            }
+
+            if (savedSidebarMini !== null) {
+                alpineRoot.sidebarMini = savedSidebarMini === 'true';
+            }
+
+            // Observer les changements et les sauvegarder
+            alpineRoot.$watch('sidebarOpen', (value) => {
+                localStorage.setItem('admin_sidebar_open', value);
+            });
+
+            alpineRoot.$watch('sidebarMini', (value) => {
+                localStorage.setItem('admin_sidebar_mini', value);
+            });
+        });
+    </script>
+
+</body>
+</html>

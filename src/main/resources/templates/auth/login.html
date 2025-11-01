@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+
+<div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow">
+    <h1 class="text-2xl font-bold mb-6">Login</h1>
+
+    <!-- Demo accounts section -->
+    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h2 class="text-lg font-semibold mb-2">Demo Accounts</h2>
+        <div class="space-y-2 text-sm">
+            <div>
+                <p class="font-medium">Admin Account:</p>
+                <p>Email: adminaccount@marketcore.com</p>
+                <p>Password: password</p>
+            </div>
+            <div>
+                <p class="font-medium">Seller Account:</p>
+                <p>Email: selleraccount@marketcore.com</p>
+                <p>Password: password</p>
+            </div>
+            <div>
+                <p class="font-medium">Buyer Account:</p>
+                <p>Email: buyeraccount@marketcore.com</p>
+                <p>Password: password</p>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{/login}" method="post" class="space-y-4">
+        <div>
+            <label class="block text-sm mb-1">Email</label>
+            <input type="text" name="username" class="border px-3 py-2 w-full rounded">
+        </div>
+        <div>
+            <label class="block text-sm mb-1">Password</label>
+            <input type="password" name="password" class="border px-3 py-2 w-full rounded">
+            <div class="text-right mt-2">
+                <a th:href="@{/forgot-password}" class="text-sm text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+            </div>
+        </div>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button class="w-full py-2 bg-indigo-600 text-white rounded">Login</button>
+    </form>
+    <div class="mt-4 text-center">
+        <p class="text-sm text-gray-600">Don't have an account?</p>
+        <a th:href="@{/register}" class="block mt-2 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">Create account</a>
+    </div>
+</div>
+
+    </div>
+</div>
+</body>
+</html>

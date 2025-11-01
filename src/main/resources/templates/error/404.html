@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+        <h1 class="text-2xl font-bold mb-4">404 - Introuvable</h1>
+        <p th:text="${status} + ' ' + ${error}"></p>
+        <p class="text-gray-600" th:text="${message}"></p>
+        <a href="/" class="text-indigo-600 underline">Retour à l'accueil</a>
+    </div>
+</div>
+</body>
+</html>

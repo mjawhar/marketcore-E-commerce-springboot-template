@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl font-bold text-gray-800 mb-6">Conditions Générales d'Utilisation</h1>
+
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8">
+                <p class="text-blue-800">
+                    <strong>Dernière mise à jour :</strong> 21 septembre 2025
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">1. Objet et Champ d'Application</h2>
+                <p class="text-gray-700 mb-4">
+                    Les présentes conditions générales d'utilisation (CGU) régissent l'utilisation du site web <span th:text="${siteName}">Marketplace</span>.com, marketplace en ligne opérant en <span th:text="${siteCountry}">France</span>.
+                </p>
+                <p class="text-gray-700">
+                    En accédant au site et en l'utilisant, l'utilisateur accepte sans réserve les présentes conditions générales d'utilisation.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">2. Définitions</h2>
+                <ul class="text-gray-700 space-y-2">
+                    <li><strong>Site :</strong> le site web <span th:text="${siteName}">Marketplace</span>.com</li>
+                    <li><strong>Utilisateur :</strong> toute personne utilisant le site</li>
+                    <li><strong>Vendeur :</strong> personne physique ou morale proposant des produits sur le site</li>
+                    <li><strong>Acheteur :</strong> utilisateur procédant à l'achat de produits sur le site</li>
+                    <li><strong>Produit :</strong> tout bien proposé à la vente sur la plateforme</li>
+                </ul>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">3. Inscription et Compte Utilisateur</h2>
+                <p class="text-gray-700 mb-4">
+                    L'inscription sur <span th:text="${siteName}">Marketplace</span> est gratuite. Pour créer un compte, l'utilisateur doit :
+                </p>
+                <ul class="text-gray-700 space-y-2 mb-4">
+                    <li>• Fournir des informations exactes et complètes</li>
+                    <li>• Être âgé de 18 ans minimum ou avoir l'autorisation parentale</li>
+                    <li>• Accepter les présentes conditions générales</li>
+                </ul>
+                <p class="text-gray-700">
+                    L'utilisateur est responsable de la confidentialité de ses identifiants de connexion.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">4. Utilisation du Site</h2>
+                <p class="text-gray-700 mb-4">L'utilisateur s'engage à :</p>
+                <ul class="text-gray-700 space-y-2 mb-4">
+                    <li>• Utiliser le site conformément à sa destination</li>
+                    <li>• Ne pas porter atteinte aux droits d'autrui</li>
+                    <li>• Ne pas publier de contenu illégal, offensant ou inapproprié</li>
+                    <li>• Respecter les droits de propriété intellectuelle</li>
+                </ul>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibent mb-4 text-indigo-600">5. Vente et Achat de Produits</h2>
+
+                <h3 class="text-xl font-semibold mb-3 text-gray-800">5.1 Pour les Vendeurs</h3>
+                <ul class="text-gray-700 space-y-2 mb-4">
+                    <li>• Les vendeurs doivent fournir des descriptions exactes de leurs produits</li>
+                    <li>• Les prix doivent être clairement affichés</li>
+                    <li>• Les vendeurs s'engagent à honorer les commandes dans les délais annoncés</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold mb-3 text-gray-800">5.2 Pour les Acheteurs</h3>
+                <ul class="text-gray-700 space-y-2">
+                    <li>• La commande constitue une acceptation des prix et conditions du vendeur</li>
+                    <li>• Le paiement doit être effectué selon les modalités proposées</li>
+                    <li>• L'acheteur dispose d'un droit de rétractation conformément à la législation</li>
+                </ul>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">6. Paiement et Livraison</h2>
+                <p class="text-gray-700 mb-4">
+                    <strong>Modes de paiement :</strong> Carte bancaire, virement bancaire, paiement à la livraison
+                </p>
+                <p class="text-gray-700 mb-4">
+                    <strong>Livraison :</strong> Les délais de livraison sont indiqués pour chaque produit. <span th:text="${siteName}">Marketplace</span> s'efforce de respecter ces délais mais ne peut être tenu responsable des retards dus à des circonstances exceptionnelles.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">7. Droit de Rétractation</h2>
+                <p class="text-gray-700 mb-4">
+                    Conformément au droit , l'acheteur dispose d'un délai de 7 jours pour exercer son droit de rétractation sans avoir à justifier de motifs ni à payer de pénalités.
+                </p>
+                <p class="text-gray-700">
+                    Les frais de retour sont à la charge de l'acheteur, sauf en cas de produit défectueux ou non conforme.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">8. Responsabilités</h2>
+                <p class="text-gray-700 mb-4">
+                    marketcore agit en tant qu'intermédiaire technique entre vendeurs et acheteurs. La responsabilité de marketcore ne peut être engagée concernant :
+                </p>
+                <ul class="text-gray-700 space-y-2">
+                    <li>• La qualité, la conformité ou la légalité des produits vendus</li>
+                    <li>• Les litiges entre vendeurs et acheteurs</li>
+                    <li>• Les interruptions temporaires du service</li>
+                </ul>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
+                    <p class="text-gray-700 font-medium">
+                        <strong>Important :</strong> Les vendeurs sont les seuls responsables des produits qu'ils vendent sur marketcore et assument la totale responsabilité sur tous les aspects liés à leurs produits (qualité, conformité, sécurité, garanties, etc.). marketcore est uniquement une vitrine permettant aux vendeurs d'exposer leurs produits et ne peut en aucun cas être tenu responsable des produits vendus par les vendeurs sur la plateforme.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">9. Protection des Données</h2>
+                <p class="text-gray-700 mb-4">
+                    <span th:text="${siteName}">Marketplace</span> s'engage à protéger les données personnelles de ses utilisateurs conformément à la réglementation en vigueur.
+                </p>
+                <p class="text-gray-700">
+                    Les données collectées sont utilisées uniquement dans le cadre du fonctionnement du service et ne sont pas transmises à des tiers sans consentement.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">10. Propriété Intellectuelle</h2>
+                <p class="text-gray-700">
+                    Tous les éléments du site (design, logos, textes, images) sont protégés par le droit d'auteur. Toute reproduction sans autorisation est interdite.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">11. Modification des Conditions</h2>
+                <p class="text-gray-700">
+                    <span th:text="${siteName}">Marketplace</span> se réserve le droit de modifier les présentes conditions générales à tout moment. Les utilisateurs seront informés des modifications par email ou notification sur le site.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">12. Droit Applicable et Juridiction</h2>
+                <p class="text-gray-700 mb-4">
+                    Les présentes conditions générales sont soumises au droit .
+                </p>
+                <p class="text-gray-700">
+                    En cas de litige, les tribunaux  seront seuls compétents.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-600">13. Contact</h2>
+                <p class="text-gray-700 mb-2">
+                    Pour toute question concernant ces conditions générales, vous pouvez nous contacter :
+                </p>
+                <ul class="text-gray-700 space-y-1">
+                    <li>• Email : <span th:text="'contact@' + ${baseUrl != null ? baseUrl.replace('https://www.', '').replace('http://www.', '').replace('https://', '').replace('http://', '') : 'example.com'}">contact@example.com</span></li>
+                    <li>• Adresse : <span th:text="${siteCity} + ', ' + ${siteCountry}">Ville, Pays</span></li>
+                    <li>• Page contact : <a href="/contact" class="text-indigo-600 hover:text-indigo-800" th:text="${baseUrl + '/contact'}">contact</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::content})}">
+    <div th:fragment="content">
+
+<!-- Navigation vendeur moderne avec sidebar -->
+<div class="flex min-h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <div class="w-64 bg-white shadow-lg">
+        <div class="p-6 border-b">
+            <h2 class="text-xl font-bold text-gray-800">
+                <i class="fas fa-store text-blue-600 mr-2"></i><span th:text="#{seller.menu.space}">Espace Vendeur</span>
+            </h2>
+        </div>
+
+        <nav class="mt-6">
+            <a th:href="@{/seller/dashboard}"
+               class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-chart-line mr-3"></i>
+                <span th:text="#{seller.menu.dashboard}">Tableau de bord</span>
+            </a>
+            <a th:href="@{/seller/products}"
+               class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors">
+                <i class="fas fa-box mr-3"></i>
+                <span th:text="#{seller.menu.products}">Mes Produits</span>
+            </a>
+            <a th:href="@{/seller/orders}"
+               class="flex items-center px-6 py-3 text-blue-600 bg-blue-50 border-r-2 border-blue-600">
+                <i class="fas fa-shopping-cart mr-3"></i>
+                <span th:text="#{seller.menu.orders}">Mes Commandes</span>
+            </a>
+
+        </nav>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="flex-1 p-8">
+        <!-- En-tête -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-shopping-cart text-blue-600 mr-3"></i><span th:text="#{seller.orders.title}">Mes Commandes</span>
+            </h1>
+            <p class="text-gray-600" th:text="#{seller.orders.subtitle}">Gérez et suivez toutes vos commandes</p>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium" th:text="#{seller.orders.stats.total}">Total Commandes</p>
+                        <p class="text-2xl font-bold text-gray-800" th:text="${totalOrders}">12</p>
+                    </div>
+                    <div class="bg-blue-100 rounded-full p-3">
+                        <i class="fas fa-shopping-bag text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium" th:text="#{seller.orders.stats.pending}">En Attente</p>
+                        <p class="text-2xl font-bold text-gray-800" th:text="${pendingOrders}">3</p>
+                    </div>
+                    <div class="bg-yellow-100 rounded-full p-3">
+                        <i class="fas fa-clock text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium" th:text="#{seller.orders.stats.delivered}">Livrées</p>
+                        <p class="text-2xl font-bold text-gray-800" th:text="${deliveredOrders}">8</p>
+                    </div>
+                    <div class="bg-green-100 rounded-full p-3">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium" th:text="#{seller.orders.stats.revenue}">CA du Mois</p>
+                        <p class="text-2xl font-bold text-gray-800" th:text="|${monthlyRevenue} ${currencySymbol}|">2,450 €</p>
+                    </div>
+                    <div class="bg-purple-100 rounded-full p-3">
+                        <i class="fas fa-euro-sign text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres par statut modernisés -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-filter mr-2"></i><span th:text="#{seller.orders.filter.title}">Filtrer par statut</span>
+            </h3>
+            <div class="flex flex-wrap gap-3">
+                <a th:href="@{/seller/orders}"
+                   th:class="${selectedStatus == null} ? 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md' : 'px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors'">
+                    <i class="fas fa-list mr-2"></i><span th:text="#{seller.orders.filter.all}">Toutes</span>
+                </a>
+                <a th:href="@{/seller/orders(status='CREATED')}"
+                   th:class="${selectedStatus == 'CREATED'} ? 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md' : 'px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors'">
+                    <i class="fas fa-plus-circle mr-2"></i><span th:text="#{seller.orders.filter.created}">Créées</span>
+                </a>
+                <a th:href="@{/seller/orders(status='CONFIRMED')}"
+                   th:class="${selectedStatus == 'CONFIRMED'} ? 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md' : 'px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors'">
+                    <i class="fas fa-check mr-2"></i><span th:text="#{seller.orders.filter.confirmed}">Confirmées</span>
+                </a>
+                <a th:href="@{/seller/orders(status='SHIPPED')}"
+                   th:class="${selectedStatus == 'SHIPPED'} ? 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md' : 'px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors'">
+                    <i class="fas fa-shipping-fast mr-2"></i><span th:text="#{seller.orders.filter.shipped}">Expédiées</span>
+                </a>
+                <a th:href="@{/seller/orders(status='DELIVERED')}"
+                   th:class="${selectedStatus == 'DELIVERED'} ? 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md' : 'px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors'">
+                    <i class="fas fa-truck mr-2"></i><span th:text="#{seller.orders.filter.delivered}">Livrées</span>
+                </a>
+                <a th:href="@{/seller/orders(status='CANCELLED')}"
+                   th:class="${selectedStatus == 'CANCELLED'} ? 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md' : 'px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors'">
+                    <i class="fas fa-times-circle mr-2"></i><span th:text="#{seller.orders.filter.cancelled}">Annulées</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Liste des commandes -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-receipt mr-2"></i><span th:text="#{seller.orders.list.title}">Liste des commandes</span>
+                    </h3>
+                    <div class="text-sm text-gray-600">
+                        <span th:text="${#lists.size(orders ?: {})} + ' ' + #{seller.orders.count}">0 commande(s)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commandes en cartes pour mobile -->
+            <div class="md:hidden">
+                <div th:each="order : ${orders}" class="p-6 border-b border-gray-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h4 class="font-semibold text-gray-800" th:text="'Commande #' + ${order.id}">Commande #001</h4>
+                            <p class="text-sm text-gray-600" th:text="${order.createdAt}">Date</p>
+                        </div>
+                        <span th:with="status=${order.status}"
+                              th:class="${
+                                status == T(com.marketcore.model.enums.OrderStatus).DELIVERED ? 'px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium' :
+                                status == T(com.marketcore.model.enums.OrderStatus).SHIPPED ? 'px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium' :
+                                status == T(com.marketcore.model.enums.OrderStatus).PAID ? 'px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium' :
+                                status == T(com.marketcore.model.enums.OrderStatus).CANCELLED ? 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium' :
+                                'px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium'}"
+                              th:text="${#strings.capitalize(#strings.toLowerCase(order.status))}">Statut</span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-sm"><span class="font-medium">Client:</span> <span th:text="${order.buyer != null ? order.buyer.fullName : 'Client inconnu'}">Nom</span></p>
+                        <p class="text-sm"><span class="font-medium">Produit:</span>
+                           <span th:if="${sellerItemsByOrder != null && not #lists.isEmpty(sellerItemsByOrder.get(order.id))}">
+                             <span th:if="${#lists.size(sellerItemsByOrder.get(order.id)) == 1}"
+                                   th:text="${sellerItemsByOrder.get(order.id)[0].product.title}">Produit du vendeur</span>
+                             <span th:if="${#lists.size(sellerItemsByOrder.get(order.id)) > 1}"
+                                   th:text="${sellerItemsByOrder.get(order.id)[0].product.title + ' et ' + (#lists.size(sellerItemsByOrder.get(order.id)) - 1) + ' autre(s) produit(s)'}">Produits multiples du vendeur</span>
+                           </span>
+                           <span th:unless="${sellerItemsByOrder != null && not #lists.isEmpty(sellerItemsByOrder.get(order.id))}" class="text-gray-500 italic">Aucun produit disponible</span>
+                        </p>
+                        <p class="text-sm"><span class="font-medium">Montant:</span>
+                           <span class="font-bold text-green-600"
+                                 th:text="|${sellerAmountByOrder != null && sellerAmountByOrder.containsKey(order.id) ? sellerAmountByOrder.get(order.id) : '0.00'} ${currencySymbol ?: '€'}|">0 €</span></p>
+                    </div>
+
+                    <div class="flex space-x-2 mt-4">
+                        <a th:href="@{'/seller/orders/' + ${order.id}}"
+                           class="flex-1 text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-eye mr-1"></i>Voir
+                        </a>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau pour desktop -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commande</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="order : ${orders}" class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
+                                            <i class="fas fa-receipt text-white text-sm"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900" th:text="'#' + ${order.id}">001</div>
+                                        <div class="text-sm text-gray-500">Commande</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900" th:text="${order.buyer != null ? order.buyer.fullName : 'Client inconnu'}">Nom Client</div>
+                                    <div class="text-sm text-gray-500" th:text="${order.buyer != null ? order.buyer.email : 'Email inconnu'}">email@client.com</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div th:if="${sellerItemsByOrder != null && not #lists.isEmpty(sellerItemsByOrder.get(order.id))}">
+                                    <div class="text-sm text-gray-900">
+                                        <span th:if="${#lists.size(sellerItemsByOrder.get(order.id)) == 1}"
+                                              th:text="${sellerItemsByOrder.get(order.id)[0].product.title}">Titre du produit</span>
+                                        <span th:if="${#lists.size(sellerItemsByOrder.get(order.id)) > 1}"
+                                              th:text="${sellerItemsByOrder.get(order.id)[0].product.title + ' et ' + (#lists.size(sellerItemsByOrder.get(order.id)) - 1) + ' autre(s) produit(s)'}">Produits multiples</span>
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        <span th:if="${#lists.size(sellerItemsByOrder.get(order.id)) == 1}"
+                                              th:text="'Qté: ' + ${sellerItemsByOrder.get(order.id)[0].quantity}">Qté: 1</span>
+                                        <span th:if="${#lists.size(sellerItemsByOrder.get(order.id)) > 1}">
+                                            <span th:with="totalQty=${0}" th:remove="tag">
+                                                <span th:each="item : ${sellerItemsByOrder.get(order.id)}" th:with="totalQty=${totalQty + item.quantity}" th:remove="tag"></span>
+                                                <span th:text="'Qté totale: ' + ${totalQty}">Qté totale: 3</span>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div th:unless="${sellerItemsByOrder != null && not #lists.isEmpty(sellerItemsByOrder.get(order.id))}">
+                                    <div class="text-sm text-gray-500 italic">Aucun produit disponible</div>
+                                    <div class="text-sm text-gray-500">Qté: 0</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-bold text-gray-900" th:text="${sellerAmountByOrder != null && sellerAmountByOrder.containsKey(order.id) ? sellerAmountByOrder.get(order.id) : '0.00'} + ' €'">0 €</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span th:with="status=${order.status},
+                                            statusClass=${status == T(com.marketcore.model.enums.OrderStatus).DELIVERED ? 'inline-flex px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full' : (status == T(com.marketcore.model.enums.OrderStatus).SHIPPED ? 'inline-flex px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full' : (status == T(com.marketcore.model.enums.OrderStatus).PAID ? 'inline-flex px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full' : (status == T(com.marketcore.model.enums.OrderStatus).CANCELLED ? 'inline-flex px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full' : 'inline-flex px-3 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full')))}"
+                                      th:class="${statusClass}"
+                                      th:text="${#strings.capitalize(#strings.toLowerCase(order.status))}">Créée</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500" th:text="${order.createdAt}">Date</td>
+                            <td class="px-6 py-4 text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a th:href="@{'/seller/orders/' + ${order.id}}"
+                                       class="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg transition-colors">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- État vide -->
+                <div th:if="${#lists.isEmpty(orders ?: {})}" class="text-center py-16">
+                    <i class="fas fa-shopping-cart text-gray-300 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune commande</h3>
+                    <p class="text-gray-500 mb-6">Vous n'avez pas encore reçu de commandes.</p>
+                    <a th:href="@{/seller/products}"
+                       class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Ajouter des produits
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                <h4 class="font-bold text-gray-800 mb-2">
+                    <i class="fas fa-clock text-blue-600 mr-2"></i>Commandes à Traiter
+                </h4>
+                <p class="text-gray-600 text-sm mb-4">Vous avez des commandes en attente de traitement</p>
+                <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Traiter maintenant
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                <h4 class="font-bold text-gray-800 mb-2">
+                    <i class="fas fa-shipping-fast text-green-600 mr-2"></i>Expéditions
+                </h4>
+                <p class="text-gray-600 text-sm mb-4">Gérer les expéditions de vos commandes</p>
+                <button class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    Voir les expéditions
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                <h4 class="font-bold text-gray-800 mb-2">
+                    <i class="fas fa-chart-bar text-purple-600 mr-2"></i>Rapport des Ventes
+                </h4>
+                <p class="text-gray-600 text-sm mb-4">Consulter les statistiques de vente</p>
+                <button class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                    Voir le rapport
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </div>
+</div>
+</body>
+</html>

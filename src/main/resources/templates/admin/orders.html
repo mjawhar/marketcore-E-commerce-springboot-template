@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{admin/admin-layout-v2 :: layout(~{::content})}">
+    <div th:fragment="content">
+
+        <h1 class="text-2xl font-bold mb-6" th:text="#{admin.orders.title}">Gestion commandes</h1>
+
+        <form method="get" class="mb-4 flex flex-wrap gap-4 text-sm items-end">
+            <div>
+                <label class="block text-xs mb-1" th:text="#{admin.orders.status.label}">Status</label>
+                <select name="status" class="border px-3 py-2 rounded w-40">
+                    <option value="">--</option>
+                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${s == status}"></option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs mb-1" th:text="#{admin.orders.from}">Du</label>
+                <input type="date" name="from" th:value="${from}" class="border px-3 py-2 rounded w-40">
+            </div>
+            <div>
+                <label class="block text-xs mb-1" th:text="#{admin.orders.to}">Au</label>
+                <input type="date" name="to" th:value="${to}" class="border px-3 py-2 rounded w-40">
+            </div>
+            <button class="px-4 py-2 bg-gray-200 rounded" th:text="#{admin.orders.filter}">Filtrer</button>
+        </form>
+
+        <table class="w-full bg-white rounded-xl shadow text-sm overflow-hidden">
+            <thead class="bg-gray-50">
+            <tr class="text-left">
+                <th class="p-2" th:text="#{admin.orders.id}">ID</th>
+                <th class="p-2" th:text="#{admin.orders.date}">Date</th>
+                <th class="p-2" th:text="#{admin.orders.customer}">Client</th>
+                <th class="p-2" th:text="#{admin.orders.total}">Total</th>
+                <th class="p-2 text-left" th:text="#{admin.orders.sellers}">Vendeurs</th>
+                <th class="p-2" th:text="#{admin.orders.delivery}">Livraison</th>
+                <th class="p-2" th:text="#{admin.orders.payment}">Paiement</th>
+                <th class="p-2" th:text="#{admin.orders.status}">Status</th>
+                <th class="p-2" th:text="#{admin.orders.details}">Détails</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="o : ${orders}" class="border-t">
+                <td class="p-2" th:text="${o.id}"></td>
+                <td class="p-2" th:text="${#temporals.format(o.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td class="p-2" th:text="${o.buyer.fullName}"></td>
+                <td class="p-2" th:text="|${#numbers.formatDecimal(o.total.multiply(currencyRate),1,'COMMA',2,'POINT')} ${currencySymbol}|"></td>
+                <td class="p-2" th:text="${o.deliveryMethod}"></td>
+                <td class="p-2">
+                    <form th:action="@{'/admin/orders/payment/' + ${o.id}}" method="post" class="flex space-x-2">
+                        <select name="payment" class="border px-2 py-1 rounded text-xs">
+                            <option th:each="p : ${payStatuses}" th:value="${p}" th:text="${p}" th:selected="${p == o.paymentStatus}"></option>
+                        </select>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button class="px-2 py-1 bg-gray-100 rounded text-xs">OK</button>
+                    </form>
+                </td>
+                <td class="p-2">
+                    <form th:action="@{'/admin/orders/status/' + ${o.id}}" method="post" class="flex space-x-2">
+                        <select name="status" class="border px-2 py-1 rounded text-xs">
+                            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${s == o.status}"></option>
+                        </select>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button class="px-2 py-1 bg-gray-100 rounded text-xs">OK</button>
+                    </form>
+                </td>
+                <td class="p-2">
+                    <a th:href="@{'/admin/orders/' + ${o.id}}" class="text-indigo-600 text-xs underline" th:text="#{admin.orders.view}">Voir</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+</body>
+</html>

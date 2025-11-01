@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="price(amount)">
+    <span th:text="|${#numbers.formatDecimal(${amount},1,'COMMA',2,'POINT')} ${currencySymbol}|"></span>
+</th:block>
+</html>

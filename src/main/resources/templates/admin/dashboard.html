@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{admin/admin-layout-v2 :: layout(~{::content})}">
+    <div th:fragment="content">
+
+<h1 class="text-2xl font-bold mb-6" th:text="#{admin.dashboard.title}">Administration</h1>
+<div class="grid md:grid-cols-3 gap-6">
+    <a href="/admin/categories" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2" th:text="#{admin.menu.categories}">Catégories</h2>
+        <p class="text-gray-600 text-sm">CRUD catégories (hiérarchie)</p>
+    </a>
+    <a href="/admin/products" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2" th:text="#{admin.menu.products}">Produits</h2>
+        <p class="text-gray-600 text-sm">Recherche, ajout, suppression (3 images)</p>
+    </a>
+    <a href="/admin/product-recommendations" class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2 flex items-center justify-center">
+            <i class="fas fa-star mr-2"></i><span th:text="#{admin.recommendations.title}">Recommandations</span>
+        </h2>
+        <p class="text-gray-100 text-sm" th:text="#{admin.recommendations.desc}">Gestion des produits recommandés</p>
+    </a>
+    <a href="/admin/sellers" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2" th:text="#{admin.menu.sellers}">Vendeurs</h2>
+        <p class="text-gray-600 text-sm" th:text="#{admin.sellers.desc}">Lister / Rechercher vendeurs</p>
+    </a>
+
+    <a href="/admin/cms" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2 flex items-center justify-center">
+            <i class="fas fa-star mr-2"></i><span th:text="#{admin.cms.title}">CMS Produits</span>
+        </h2>
+        <p class="text-gray-100 text-sm" th:text="#{admin.cms.desc}">Gestion des 4 produits mis en avant</p>
+    </a>
+
+    <a href="/admin/users" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2 flex items-center justify-center">
+            <i class="fas fa-users mr-2 text-blue-600"></i><span th:text="#{admin.menu.users}">Utilisateurs</span>
+        </h2>
+        <p class="text-gray-600 text-sm" th:text="#{admin.users.desc}">Gestion complète des utilisateurs & rôles</p>
+    </a>
+
+    <a href="/admin/orders" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2" th:text="#{admin.menu.orders}">Commandes</h2>
+        <p class="text-gray-600 text-sm" th:text="#{admin.orders.desc}">Suivi & statut</p>
+    </a>
+
+    <a href="/admin/sitemap" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2 flex items-center justify-center">
+            <i class="fas fa-sitemap mr-2 text-blue-600"></i><span th:text="#{admin.sitemap.title}">Sitemap</span>
+        </h2>
+        <p class="text-gray-600 text-sm" th:text="#{admin.sitemap.desc}">Génération automatique & SEO</p>
+    </a>
+
+    <a href="/admin/settings" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2" th:text="#{admin.menu.settings}">Paramètres</h2>
+        <p class="text-gray-600 text-sm" th:text="#{admin.settings.desc}">Devise & taux</p>
+    </a>
+
+    <!-- Optimisation des images -->
+    <a href="/admin/optimize-images" class="bg-gradient-to-r from-green-500 to-teal-500 text-white p-6 rounded-xl shadow hover:shadow-lg transition text-center">
+        <h2 class="text-xl font-semibold mb-2 flex items-center justify-center">
+            <i class="fas fa-image mr-2"></i><span th:text="#{admin.optimize.images}">Optimiser les images</span>
+        </h2>
+        <p class="text-gray-100 text-sm" th:text="#{admin.optimize.images.desc}">Réduire la taille des images existantes</p>
+    </a>
+
+</div>
+
+    </div>
+</div>
+</body>
+</html>
