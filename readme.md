@@ -62,6 +62,9 @@ Seller dashboard with:
 * Spring Security 6: Login/Logout, role management, route restrictions.
 * CSRF protection by default (Thymeleaf forms).
 
+
+### I18n ready 
+
 ### Miscellaneous
 
 * Modular Thymeleaf templates (layout fragment, header/footer fragments).
@@ -319,11 +322,9 @@ env SPRING_PROFILES_ACTIVE=prod java -jar target/marketcore.jar
 ## Roadmap / Improvement Ideas
 
 * Product pagination & sorting.
-* Product image upload (File storage / S3).
+
 * Real payment method integration (Stripe, PayPal...).
-* Internationalization (i18n) via messages.properties.
-* Integration tests (MockMvc) + UI tests.
-* Complete Dockerization (app + DB) with docker-compose.
+
 
 ---
 
